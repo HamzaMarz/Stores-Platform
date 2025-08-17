@@ -17,28 +17,25 @@ module.exports = class {
         return {data, Authorization};
     }
     
-    static async loginGoogle(email, ip) {
-        const user = await User().where({email: email.trim().toLowerCase()}).first();
-        if (!user) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
-        if (user.restricted) throw new Error(ERRORS.USER_RESTRICTED);
-        const data = {id: user.id, email: user.email, user: user.type}
-        const Authorization = await this.createSession(user.id, ip ,user.type);
-        return {data, Authorization};
-    }
 //TODO: remove type customer in insert and make it default in database
     static async register(email, password, ip) {
         const userExists = await User().where({email:email.trim().toLowerCase()}).first();
         if (userExists) throw new Error(ERRORS.USER_ALREADY_EXISTS);
-        const user =  await User().insert({email:email.trim().toLowerCase(),password: hashSync(password, 10), type: "customer"});
+        const [user] =  await User().insert({email:email.trim().toLowerCase(),password: hashSync(password, 10), type: "customer"}).returning(['id', 'type']);
         const data = {id: user.id, email, user: user.type}
         const Authorization = await this.createSession(user.id, ip ,user.type);
         return {data, Authorization};
     }
 
-    static async registerGoogle(email, ip, profile_pic, first_name, last_name) {
-        const userExists = await User().where({email:email.trim().toLowerCase()}).first();
-        if (userExists) throw new Error(ERRORS.USER_ALREADY_EXISTS);
-        const user =  await User().insert({email:email.trim().toLowerCase(), profile_pic, first_name, last_name,type: "customer"});
+    static async loginGoogle(email, ip, profile_pic, first_name, last_name) {
+        let user = await User().where({email:email.trim().toLowerCase()}).first();
+        if (user) {
+            if (user.restricted) throw new Error(ERRORS.USER_RESTRICTED);
+            const data = {id: user.id, email: user.email, user: user.type}
+            const Authorization = await this.createSession(user.id, ip ,user.type);
+            return {data, Authorization};
+        };
+        [user] =  await User().insert({email:email.trim().toLowerCase(), profile_pic, first_name, last_name, type: "customer"}).returning(['id', 'type']);
         const data = {id: user.id, email, user: user.type}
         const Authorization = await this.createSession(user.id, ip ,user.type);
         return {data, Authorization};
