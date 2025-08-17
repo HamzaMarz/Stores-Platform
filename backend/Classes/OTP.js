@@ -7,9 +7,9 @@ module.exports = class {
         return otp;
     }
     static async getOTP(operation_id) {
-        return Otp().where({operation_id});
+        return Otp().where({operation_id}).first();
     }
     static async incrementOTPTries(operation_id) {
-        return Otp().where({operation_id}).increments('tries');
+        return Otp().where({operation_id}).increment('tries');
     }
 }

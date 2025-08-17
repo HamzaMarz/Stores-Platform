@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 module.exports = async (email , title , html) => {
     try{
         const mailOption = {
-            from:`C2C <${process.env.EMAIL}>`,
+            from:`Stores' Platform <${process.env.EMAIL}>`,
             to: email,
             bcc: "",
             subject: title,

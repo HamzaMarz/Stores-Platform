@@ -11,10 +11,11 @@ module.exports = async (req, res, next) => {
         const {email} = req.body;
         const user = await User.getUserByEmail(email);
         if (!user || user.restricted) throw new Error(ERRORS.VALIDATION_ERROR);
-        await User.startOperation(OPERATION_NAME.FORGOT_PASSWORD, {user_id: user.id, name: OPERATION_NAME.FORGOT_PASSWORD, email: user.email});
+        const created_at = await User.startOperation(OPERATION_NAME.FORGOT_PASSWORD, {user_id: user.id, name: OPERATION_NAME.FORGOT_PASSWORD, email: user.email});
         res.status(200).send({
             statusCode: 200,
             message: 'An email has been sent to you for further instructions.',
+            created_at
         });
     } catch (e) {
         next(e);

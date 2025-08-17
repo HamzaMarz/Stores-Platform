@@ -1,10 +1,10 @@
-const {Operation, knex, User_session} = require("../Database/models");
+const {Operation, knex, User} = require("../Database/models");
 const {ERRORS, OPERATION_STATUS} = require("../Controllers/utils/enums");
-const User = require("./User");
 const OTP = require("./OTP");
 const {compareSync, hashSync} = require("bcrypt")
 const sendMail = require("../Controllers/utils/send-mail")
 const {forgotPasswordHtml, passwordUpdatedHtml} = require("../Controllers/utils/html");
+const { LoginTicket } = require("google-auth-library");
 
 module.exports = class {
 
@@ -15,9 +15,9 @@ module.exports = class {
                 await this.terminateOperation(operationExists.id);
             else throw new Error(ERRORS.OPERATION_IN_PROGRESS);
         }
-        const operation = this.generateOperation(user_id, name);
+        const [operation] = await this.generateOperation(user_id, name);
         const trx = await knex.transaction();
-        const otp = OTP.generateOTP(operation.id, trx);
+        const otp = await OTP.generateOTP(operation.id, trx);
         const sent = await sendMail(email, "Reset Password", forgotPasswordHtml(otp));
         if (!sent) {
             await trx.rollback();
@@ -25,6 +25,7 @@ module.exports = class {
         }
         await trx.commit();
         await this.updateOperation(operation.id, OPERATION_STATUS.OTP_SENT);
+        return operation.created_at;//TODO: use created_at to count down from in frontend
     }
 
     static async checkOTP(user_id, name, otp) { //TODO: follow the flow and send an email that a password change has happend
@@ -32,12 +33,12 @@ module.exports = class {
         if (!operationExists) {
             throw new Error(ERRORS.UNAUTHORIZED);
         }
-        const hashedOTP = OTP.getOTP(operationExists.id);
+        const hashedOTP = await OTP.getOTP(operationExists.id);
         if (Date.now() > operationExists.created_at + 600000 || hashedOTP.tries > 3) {
             await this.terminateOperation(operationExists.id);
             throw new Error(ERRORS.OTP_EXPIRED);
         }
-        if (!compareSync(otp, hashedOTP.otp)) {
+        if (!compareSync(String(otp), hashedOTP.otp)) {
             await OTP.incrementOTPTries(operationExists.id);//TODO: check increments method
             throw new Error(ERRORS.WRONG_OTP);
         }
@@ -49,15 +50,15 @@ module.exports = class {
         if (!operationExists) {
             throw new Error(ERRORS.UNAUTHORIZED);
         }
-        const hashedOTP = OTP.getOTP(operationExists.id);
+        const hashedOTP = await OTP.getOTP(operationExists.id);
         if(operationExists.status !== OPERATION_STATUS.OTP_CORRECT) throw new Error(ERRORS.UNAUTHORIZED);
-        if (!compareSync(otp, hashedOTP.otp)) {
+        if (!compareSync(String(otp), hashedOTP.otp)) {
             await this.terminateOperation(operationExists.id);
             throw new Error(ERRORS.UNAUTHORIZED);
         }
         await this.updateOperation(operationExists.id, OPERATION_STATUS.OTP_CORRECT);
 
-        await User.updatePassword(user_id, hashSync(password));
+        await User().update({password: hashSync(password, 10)}).where({id: user_id});
         await this.closeOperation(operationExists.id);
         await sendMail(email, "Password Updated", passwordUpdatedHtml());
     }
@@ -67,7 +68,7 @@ module.exports = class {
     }
 
     static async getOperationByName(user_id, name) {
-        return Operation().where({user_id, name});
+        return Operation().where({user_id, name}).first();
     }
 
     static async getOperation(id) {

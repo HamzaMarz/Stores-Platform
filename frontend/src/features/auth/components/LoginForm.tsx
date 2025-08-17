@@ -5,19 +5,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useLogin } from '../hooks/useLogin'
 import type { LoginPayload } from '../hooks/useLogin'
 import { ErrorMessages } from '../../../constants/app'
-import ForgotPasswordDialog from './ForgotPasswordDialog'
 
 const schema = z.object({
 	email: z.string().email(ErrorMessages.InvalidEmail),
 	password: z.string().min(1, ErrorMessages.Required),
 })
 
-type Props = { onSuccess?: () => void; onError?: (message: string) => void }
+type Props = { onSuccess?: () => void; onError?: (message: string) => void; onForgotPasswordClick?: () => void }
 
-const LoginForm: React.FC<Props> = ({ onSuccess, onError }) => {
+const LoginForm: React.FC<Props> = ({ onSuccess, onError, onForgotPasswordClick }) => {
 	const { register, handleSubmit, formState: { errors } } = useForm<LoginPayload>({ resolver: zodResolver(schema) })
 	const login = useLogin()
-	const [isForgotOpen, setIsForgotOpen] = React.useState(false)
 
 	const onSubmit = handleSubmit(async (values) => {
 		try {
@@ -44,17 +42,10 @@ const LoginForm: React.FC<Props> = ({ onSuccess, onError }) => {
 				{login.isPending ? 'Signing in…' : 'Sign in'}
 			</button>
 			<div className="text-sm text-gray-600 text-center">
-				<button type="button" className="underline underline-offset-4" onClick={() => setIsForgotOpen(true)}>
+				<button type="button" className="underline underline-offset-4" onClick={onForgotPasswordClick}>
 					Forgot your password?
 				</button>
 			</div>
-			<ForgotPasswordDialog
-				open={isForgotOpen}
-				onClose={() => setIsForgotOpen(false)}
-				onSuccess={() => {
-					setIsForgotOpen(false)
-				}}
-			/>
 		</form>
 	)
 }
