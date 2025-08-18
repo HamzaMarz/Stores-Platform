@@ -6,7 +6,7 @@ import { useAuthStore } from '../state/useAuthStore'
 
 type MeResponse = {
 	statusCode: number
-	data: { id: number; email: string; user: string }
+	data: { id: number; email: string; user: string; verified?: boolean }
 }
 
 export const useBootstrapAuth = () => {
@@ -27,7 +27,7 @@ export const useBootstrapAuth = () => {
 	useEffect(() => {
 		if (query.isSuccess) {
 			const d = query.data
-			setUser({ id: String(d.id), email: d.email, name: d.user })
+			setUser({ id: String(d.id), email: d.email, name: d.user, verified: d.verified })
 			setBootstrapped(true)
 		}
 		if (query.isError) {

@@ -31,6 +31,8 @@ app.use(cors({
     credentials: true
 }));
 app.use(helmet());
+// Stripe webhook needs raw body for signature verification
+app.use('/api/v1/stripe/webhook', express.raw({type: '*/*'}));
 app.use(express.json({limit: "2mb"}));
 app.use(cookieParser());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

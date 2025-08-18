@@ -10,6 +10,20 @@ export const ApiEndpoints = {
 	CheckOtp: "/api/v1/user/auth/check-otp",
 	UpdatePassword: "/api/v1/user/auth/update-password",
 	Products: "/api/v1/products",
+	// Profile verification and payment methods
+	ProfileVerify: "/api/v1/user/profile/verify",
+	ProfileInfo: "/api/v1/user/profile/info",
+	ProfileChangePassword: "/api/v1/user/profile/change-password",
+	PaymentMethodsEnsure: "/api/v1/user/profile/payment-methods/ensure",
+	PaymentMethodsAdd: "/api/v1/user/profile/payment-methods/add",
+	PaymentMethodsSave: "/api/v1/user/profile/payment-methods/save",
+	PaymentMethodsList: "/api/v1/user/profile/payment-methods/list",
+	PaymentMethodsDelete: "/api/v1/user/profile/payment-methods/delete",
+	// Payments
+	PaymentCreate: "/api/v1/user/payment/create",
+	PaymentStatus: "/api/v1/user/payment/status",
+	// Profile Upgrade
+	ProfileUpgrade: "/api/v1/user/profile/upgrade",
 } as const
 
 export type ApiEndpoint = typeof ApiEndpoints[keyof typeof ApiEndpoints]

@@ -6,6 +6,7 @@ module.exports = {
     store: require('./store'),
     admin_session: require('./admin_session'),
     user_session: require('./user_session'),
+    user_payment: require('./user_payment'),
     product: require('./product'),
     cart: require('./cart'),
     cart_product: require('./cart_product'),
@@ -14,6 +15,7 @@ module.exports = {
     message: require('./message'),
     operation: require('./operation'),
     otp: require('./otp'),
+    transaction: require('./transaction'),
     support_ticket: require('./support_ticket'),
     support_messages: require('./support_messages'),
     rating: require('./rating')

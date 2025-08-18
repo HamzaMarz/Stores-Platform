@@ -34,7 +34,11 @@ const RootLayout: React.FC = () => {
 							</>
 						) : (
 							<>
-								<span className="text-gray-700">Hi, {user.name}</span>
+								<NavLink to={AppRoutes.Profile} className="inline-flex items-center gap-2">
+									<div className="h-8 w-8 rounded-full bg-gray-900 text-white grid place-items-center text-xs">
+										{(user.name || user.email).slice(0, 2).toUpperCase()}
+									</div>
+								</NavLink>
 								<button
 									className="rounded-md border px-3 py-1.5 hover:bg-gray-50"
 									onClick={async () => {

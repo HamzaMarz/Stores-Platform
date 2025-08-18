@@ -7,6 +7,7 @@ import RegisterPage from '../features/auth/pages/RegisterPage'
 import DashboardPage from '../ui/pages/DashboardPage'
 import NotFoundPage from '../ui/pages/NotFoundPage'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
+import GuestRoute from '../ui/routing/GuestRoute'
 import LandingPage from '../ui/pages/LandingPage'
 import ProfilePage from '../features/profile/pages/ProfilePage'
 import UpgradePage from '../features/merchant/pages/UpgradePage'
@@ -17,8 +18,8 @@ const router = createBrowserRouter([
 		element: <RootLayout />,
 		children: [
 			{ index: true, element: <HomePage /> },
-			{ path: AppRoutes.Login, element: <LoginPage /> },
-			{ path: AppRoutes.Register, element: <RegisterPage /> },
+			{ path: AppRoutes.Login, element: <GuestRoute><LoginPage /></GuestRoute> },
+			{ path: AppRoutes.Register, element: <GuestRoute><RegisterPage /></GuestRoute> },
 			{
 				path: AppRoutes.Dashboard,
 				element: (

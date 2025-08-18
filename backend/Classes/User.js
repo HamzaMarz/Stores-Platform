@@ -62,8 +62,9 @@ module.exports = class {
 
     static async changePassword(id, old_pass, password){
         const user = await this.getUser(id);
+        if(!user.password) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
         if(!compareSync(old_pass, user.password)) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
-        return User().update({password}).where({id});
+        return User().update({password: hashSync(password, 10)}).where({id});
     }
 
     static async editInfo(id, first_name, last_name, phone, bank_name, bank_account){
