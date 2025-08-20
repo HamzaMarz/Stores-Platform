@@ -133,16 +133,17 @@ module.exports = class {
 
     // Upgrade flow
     static async startUpgrade(user_id, target) {
-        const existing = await this.getOperationByName(user_id, OPERATION_NAME.UPGRADE);
-        if (existing && existing.status !== OPERATION_STATUS.UPGRADE_REJECTED) {
-            throw new Error(ERRORS.OPERATION_IN_PROGRESS);
-        }
-        if (existing && existing.status === OPERATION_STATUS.UPGRADE_REJECTED) {
-            // keep history of previous rejected by not deleting; create new
-        }
+        const user = await User().where({id: user_id}).first();
+        if (!user) throw new Error(ERRORS.UNAUTHORIZED);
+        // Only allow upgrades from customer to merchant/store and not to the same role
+        if (user.type === target) throw new Error(ERRORS.VALIDATION_ERROR);
+        if (user.type !== 'customer') throw new Error(ERRORS.VALIDATION_ERROR);
+        const existing = await Operation().where({user_id, name: OPERATION_NAME.UPGRADE}).orderBy('created_at', 'desc');
+        const hasActive = existing.find(o => [OPERATION_STATUS.UPGRADE_REQUESTED, OPERATION_STATUS.UPGRADE_APPROVED].includes(o.status));
+        if (hasActive) throw new Error(ERRORS.OPERATION_IN_PROGRESS);
         const [op] = await this.generateOperation(user_id, OPERATION_NAME.UPGRADE, {target});
         await this.updateOperation(op.id, OPERATION_STATUS.UPGRADE_REQUESTED);
-        return { created_at: op.created_at, target };
+        return { id: op.id, created_at: op.created_at, target };
     }
 
     static async upgradeStatus(user_id) {

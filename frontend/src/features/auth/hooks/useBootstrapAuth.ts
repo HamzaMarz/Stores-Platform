@@ -27,7 +27,8 @@ export const useBootstrapAuth = () => {
 	useEffect(() => {
 		if (query.isSuccess) {
 			const d = query.data
-			setUser({ id: String(d.id), email: d.email, name: d.user, verified: d.verified })
+			const type = (d.user as unknown as string) as 'customer' | 'merchant' | 'store'
+			setUser({ id: String(d.id), email: d.email, name: d.user, verified: d.verified, type })
 			setBootstrapped(true)
 		}
 		if (query.isError) {

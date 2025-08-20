@@ -56,4 +56,10 @@ module.exports = class {
 		if (!process.env.STRIPE_WEBHOOK_SECRET) throw new Error('STRIPE_WEBHOOK_SECRET is required');
 		return stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET);
 	}
+
+	static async refundPaymentIntent(paymentIntentId, amountCents = null) {
+		const params = {payment_intent: paymentIntentId};
+		if (amountCents) params.amount = amountCents;
+		return stripe.refunds.create(params);
+	}
 }

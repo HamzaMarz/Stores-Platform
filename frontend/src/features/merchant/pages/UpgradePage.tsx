@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useGetProfileInfo, useSaveProfileInfo } from '../../profile/hooks/useProfileInfo'
 import { useStartUpgrade, useUpgradeStatus } from '../hooks/useUpgrade'
+import { useToast } from '../../../hooks/useToast'
 
 const UpgradePage: React.FC = () => {
 	const schema = z.object({
@@ -19,8 +20,9 @@ const UpgradePage: React.FC = () => {
 	const saveInfo = useSaveProfileInfo()
 	const statusQuery = useUpgradeStatus()
 	const startUpgrade = useStartUpgrade()
+	const { show } = useToast()
 
-	const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(schema) })
+	const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
 	React.useEffect(() => {
 		infoQuery.refetch().then((res) => {
@@ -32,6 +34,9 @@ const UpgradePage: React.FC = () => {
 		})
 	}, [])
 
+	const active = (statusQuery.data as any)?.active
+	const hasActive = Boolean(active)
+
 	return (
 		<div className="container mx-auto px-4 py-12">
 			<h1 className="text-2xl font-bold">Upgrade your account</h1>
@@ -39,7 +44,7 @@ const UpgradePage: React.FC = () => {
 
 			<div className="mt-8 grid md:grid-cols-2 gap-6">
 				<form
-					onSubmit={handleSubmit(async (values) => { await saveInfo.mutateAsync(values) })}
+					onSubmit={handleSubmit(async (values) => { await saveInfo.mutateAsync(values); show({ title: 'Profile info saved', tone: 'success' }) })}
 					className="rounded-xl border bg-white p-6 shadow-sm space-y-4"
 				>
 					<h2 className="font-semibold">Your information</h2>
@@ -79,18 +84,68 @@ const UpgradePage: React.FC = () => {
 				<div className="rounded-xl border bg-white p-6 shadow-sm space-y-4">
 					<h2 className="font-semibold">Upgrade</h2>
 					{statusQuery.isSuccess && (
-						<div className="text-sm text-gray-700">Status: {JSON.stringify(statusQuery.data)}</div>
+						(() => {
+							const rejected: any[] = (statusQuery.data as any)?.rejected || []
+							if (active) {
+								return (
+									<div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+										Active upgrade request: <b>{active.status}</b>{active.target ? ` to ${active.target}` : ''} • {active.created_at ? new Date(active.created_at).toLocaleString() : ''}
+									</div>
+								)
+							}
+							if (rejected.length > 0) {
+								const last = rejected[0]
+								return (
+									<div className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-2">
+										Previous request was rejected{last.created_at ? ` on ${new Date(last.created_at).toLocaleDateString()}` : ''}. You can submit a new request.
+									</div>
+								)
+							}
+							return (<div className="text-sm text-gray-600">No active upgrade request.</div>)
+						})()
 					)}
 					<div className="grid grid-cols-2 gap-3">
 						<button
-							onClick={async () => { await startUpgrade.mutateAsync('store'); statusQuery.refetch() }}
+							onClick={async () => {
+								const values = getValues()
+								const fields: (keyof FormValues)[] = ['first_name','last_name','phone','bank_name','bank_account']
+								const missing = fields.some((k) => !values[k] || String(values[k]).trim() === '')
+								if (missing) {
+									show({ title: 'Please fill your profile info first', tone: 'error' })
+									return
+								}
+								try {
+									await startUpgrade.mutateAsync('store')
+									await statusQuery.refetch()
+									show({ title: 'Upgrade request submitted', tone: 'success' })
+								} catch (e: any) {
+									show({ title: e?.message || 'Failed to start upgrade', tone: 'error' })
+								}
+							}}
+							disabled={startUpgrade.isPending || hasActive}
 							className="rounded-md bg-gray-900 text-white px-4 py-2 disabled:opacity-60"
 						>
 							Upgrade to Store
 						</button>
 						<button
-							onClick={async () => { await startUpgrade.mutateAsync('merchant'); statusQuery.refetch() }}
-							className="rounded-md border px-4 py-2"
+							onClick={async () => {
+								const values = getValues()
+								const fields: (keyof FormValues)[] = ['first_name','last_name','phone','bank_name','bank_account']
+								const missing = fields.some((k) => !values[k] || String(values[k]).trim() === '')
+								if (missing) {
+									show({ title: 'Please fill your profile info first', tone: 'error' })
+									return
+								}
+								try {
+									await startUpgrade.mutateAsync('merchant')
+									await statusQuery.refetch()
+									show({ title: 'Upgrade request submitted', tone: 'success' })
+								} catch (e: any) {
+									show({ title: e?.message || 'Failed to start upgrade', tone: 'error' })
+								}
+							}}
+							disabled={startUpgrade.isPending || hasActive}
+							className="rounded-md border px-4 py-2 disabled:opacity-60"
 						>
 							Upgrade to Merchant
 						</button>

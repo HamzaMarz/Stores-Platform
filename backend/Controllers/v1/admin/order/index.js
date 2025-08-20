@@ -1,13 +1,15 @@
 const router = require("express").Router();
 
-const all = require("./all");
+const search = require("./search");
 const updateStatus = require("./update-status");
-const markPaid = require("./mark-paid");
-const markDelivered = require("./mark-delivered");
+const refund = require("./refund");
+const allPending = require("./all-pending");
+const rejectRefund = require("./reject-refund");
 
-router.post('/all', all);
+router.post('/search', search);
 router.put('/update-status', updateStatus);
-router.put('/mark-paid', markPaid);
-router.put('/mark-delivered', markDelivered);
+router.put('/refund', refund);
+router.post('/all-pending', allPending);
+router.put('/reject-refund', rejectRefund);
 
 module.exports = router; 

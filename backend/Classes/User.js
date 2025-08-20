@@ -10,6 +10,7 @@ module.exports = class {
     static async login(email, password, ip) {
         const user = await User().where({email: email.trim().toLowerCase()}).first();
         if (!user) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
+        if(user.password == null) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
         if (!compareSync(password, user.password)) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
         if (user.restricted) throw new Error(ERRORS.USER_RESTRICTED);
         const data = {id: user.id, email:user.email , user: user.type}

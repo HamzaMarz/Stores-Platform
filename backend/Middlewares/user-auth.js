@@ -24,7 +24,8 @@ module.exports = async (req, res, next) => {
     } catch (e) {
         res.clearCookie("Authorization");
         res.removeHeader("authorization");
-        const {status, message} = handleError(e.message);
+        const isJwtError = e?.name === 'JsonWebTokenError' || e?.name === 'TokenExpiredError' || String(e?.message || '').toLowerCase().includes('invalid token') || String(e?.message || '').toLowerCase().includes('jwt');
+        const {status, message} = handleError(isJwtError ? ERRORS.UNAUTHORIZED : e.message);
         if (status === 500) console.error(e);
         res.status(status).send({
             message: message,

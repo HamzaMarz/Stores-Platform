@@ -5,6 +5,7 @@ export type AuthUser = {
 	email: string
 	name: string
 	verified?: boolean
+	type?: 'customer' | 'merchant' | 'store'
 }
 
 type AuthState = {

@@ -14,7 +14,7 @@ module.exports = async (req, res, next) => {
             await Admin.removeAdminSession(client.session_id);
             throw new Error(ERRORS.UNAUTHORIZED);
         }
-        const admin = await Admin.getAdmin(client.admin_Id);
+        const admin = await Admin.getAdmin(client.admin_id);
         if(!admin) throw new Error(ERRORS.UNAUTHORIZED);
         if(admin.restricted) throw new Error(ERRORS.UNAUTHORIZED);
         admin.currentSession = client;
@@ -23,7 +23,8 @@ module.exports = async (req, res, next) => {
     } catch (e) {
         res.clearCookie("Authorization");
         res.removeHeader("authorization");
-        const {status, message} = handleError(e.message);
+        const isJwtError = e?.name === 'JsonWebTokenError' || e?.name === 'TokenExpiredError' || String(e?.message || '').toLowerCase().includes('invalid token') || String(e?.message || '').toLowerCase().includes('jwt');
+        const {status, message} = handleError(isJwtError ? ERRORS.UNAUTHORIZED : e.message);
         if (status === 500) console.error(e);
         res.status(status).send({
             message: message,

@@ -11,8 +11,8 @@ module.exports = class {
         if (!compareSync(password, admin.password)) throw new Error(ERRORS.USERNAME_PASSWORD_INCORRECT);
         if (admin.restricted) throw new Error(ERRORS.ADMIN_RESTRICTED);
         const info = await Helper.getIpInfo(ip);
-        const [newSession] = await Admin_session().insert({admin_Id: admin.id, ip, info}).returning('id');
-        const authObject = {admin_Id: admin.id, session_id: newSession.id, level: admin.level}
+        const [newSession] = await Admin_session().insert({admin_id: admin.id, ip, info}).returning('id');
+        const authObject = {admin_id: admin.id, session_id: newSession.id, level: admin.level}
         const data = {id: admin.id, username, level: admin.level}
         const Authorization = sign(authObject, process.env.JWT_SECRET, {algorithm: 'HS512'});
         return {data, Authorization};

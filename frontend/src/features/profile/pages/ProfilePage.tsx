@@ -20,6 +20,8 @@ const ProfilePage: React.FC = () => {
     const verified = useAuthStore((s) => s.user?.verified)
     const navigate = useNavigate()
     const [active, setActive] = React.useState<ProfileSection>('profile')
+    const userType = useAuthStore((s) => s.user?.type)
+    const isCustomer = userType === 'customer' || !userType
 
 	return (
 		<div className="container mx-auto px-4 py-12">
@@ -31,7 +33,7 @@ const ProfilePage: React.FC = () => {
 					sections={[
 						{ key: 'profile', label: 'Profile' },
 						{ key: 'cards', label: 'Cards' },
-						{ key: 'upgrade', label: 'Upgrade' },
+						...(isCustomer ? ([{ key: 'upgrade', label: 'Upgrade' }] as const) : []),
 						{ key: 'security', label: 'Security' },
 					]}
 					active={active}
@@ -83,7 +85,7 @@ const ProfilePage: React.FC = () => {
 							)}
 						</div>
 					)}
-					{active === 'upgrade' && (
+					{active === 'upgrade' && isCustomer && (
 						<div className="rounded-xl border bg-white p-6 shadow-sm">
 							<h2 className="font-semibold">Upgrade</h2>
 							<div className="mt-4">

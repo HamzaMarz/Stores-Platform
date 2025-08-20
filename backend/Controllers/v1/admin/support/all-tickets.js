@@ -20,14 +20,11 @@ module.exports = async (req, res, next) => {
         if (!isValid) throw new Error(ERRORS.VALIDATION_ERROR);
         const { offset, limit, status, order } = req.body;
         
-        const query = Support_ticket()
-            .select("support_ticket.*", "user.first_name", "user.last_name", "user.email")
+        const base = Support_ticket()
             .join("user", "support_ticket.user_id", "user.id");
-        
-        if (status) query.where({status});
-        
-        const [{count}] = await query.count("support_ticket.id as count");
-        const data = await query.offset(offset).limit(limit).orderBy(`support_ticket.${order.column}`, order.direction);
+        if (status) base.where({status});
+        const [{count}] = await base.clone().clearSelect().clearOrder().count("support_ticket.id as count");
+        const data = await base.clone().select("support_ticket.*", "user.first_name", "user.last_name", "user.email").offset(offset).limit(limit).orderBy(`support_ticket.${order.column}`, order.direction);
         
         res.status(200).send({
             statusCode: 200,

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { seed, clearAll } = require('../Database/seeds');
 
 // Parse command line arguments

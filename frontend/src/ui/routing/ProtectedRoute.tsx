@@ -10,6 +10,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 	const location = useLocation()
 	const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 	const isBootstrapped = useAuthStore((s) => s.isBootstrapped)
+	const userType = useAuthStore((s) => s.user?.type)
 
 	if (!isBootstrapped) {
 		return (
@@ -22,6 +23,11 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 
 	if (!isAuthenticated) {
 		return <Navigate to={AppRoutes.Login} replace state={{ from: location }} />
+	}
+
+	// Prevent non-customer users from accessing the upgrade route
+	if (location.pathname === AppRoutes.Upgrade && userType && userType !== 'customer') {
+		return <Navigate to={AppRoutes.Dashboard} replace />
 	}
 
 	return <>{children}</>
