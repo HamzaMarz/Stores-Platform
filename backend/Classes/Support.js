@@ -34,21 +34,32 @@ module.exports = class {
     }
     
     static async getUserTickets(user_id, offset, limit, order = {column: "created_at", direction: "desc"}) {
-        const query = Support_ticket().where({user_id});
-        const [{count}] = await query.count("id as count");
-        const data = await query.offset(offset).limit(limit).orderBy(order.column, order.direction);
-        return {data, count: parseInt(count)};
+        const base = Support_ticket().where({user_id});
+        const countRow = await base.clone().clearSelect().clearOrder().clear('limit').clear('offset').count({count: 'id'}).first();
+        const count = parseInt(countRow.count);
+        const data = await base.clone().offset(offset).limit(limit).orderBy(order.column, order.direction);
+        return {data, count};
     }
     
     static async getTicketWithMessages(id, messages_limit, messages_offset) {
-        const ticket = await Support_ticket()
-            .select("*", this.messagesQuery(messages_limit, messages_offset))
-            .where({id})
-            .first();
-        
+        const ticket = await Support_ticket().where({id}).first();
         if (!ticket) throw new Error(ERRORS.TICKET_DOES_NOT_EXIST);
-        
-        return ticket;
+
+        const messages = await Support_messages()
+            .select(
+                "support_messages.*",
+                "user.first_name as user_name",
+                "user.profile_pic as user_pic",
+                "admin.username as admin_name"
+            )
+            .leftJoin("user", "support_messages.user_id", "user.id")
+            .leftJoin("admin", "support_messages.admin_id", "admin.id")
+            .where({"support_messages.support_ticket_id": id})
+            .orderBy("support_messages.created_at", "asc")
+            .limit(messages_limit)
+            .offset(messages_offset);
+
+        return {...ticket, messages};
     }
     
     static async updateTicketStatus(id, status, admin_id = null, upgrade_message = null) {

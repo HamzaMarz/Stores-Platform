@@ -30,6 +30,11 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 		return <Navigate to={AppRoutes.Dashboard} replace />
 	}
 
+	// Protect seller-only areas: if route starts with /dashboard and user is a customer, redirect
+	if (location.pathname.startsWith(AppRoutes.Dashboard) && (!userType || userType === 'customer')) {
+		return <Navigate to={AppRoutes.Home} replace />
+	}
+
 	return <>{children}</>
 }
 

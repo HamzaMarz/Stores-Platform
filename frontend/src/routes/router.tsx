@@ -5,6 +5,8 @@ import HomePage from '../ui/pages/HomePage'
 import LoginPage from '../features/auth/pages/LoginPage'
 import RegisterPage from '../features/auth/pages/RegisterPage'
 import DashboardPage from '../ui/pages/DashboardPage'
+import SellerProductsPage from '../features/seller/pages/SellerProductsPage'
+import SellerOrdersPage from '../features/seller/pages/SellerOrdersPage'
 import NotFoundPage from '../ui/pages/NotFoundPage'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
 import GuestRoute from '../ui/routing/GuestRoute'
@@ -27,6 +29,11 @@ const router = createBrowserRouter([
 						<DashboardPage />
 					</ProtectedRoute>
 				),
+				children: [
+					{ index: true, element: <SellerProductsPage /> },
+					{ path: 'products', element: <SellerProductsPage /> },
+					{ path: 'orders', element: <SellerOrdersPage /> },
+				],
 			},
 			{
 				path: AppRoutes.Landing,

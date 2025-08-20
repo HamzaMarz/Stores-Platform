@@ -34,10 +34,29 @@ const RootLayout: React.FC = () => {
 							</>
 						) : (
 							<>
+								{user.type && user.type !== 'customer' && (
+									<NavLink to={AppRoutes.Dashboard} className={({ isActive }) => isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'}>
+										Dashboard
+									</NavLink>
+								)}
 								<NavLink to={AppRoutes.Profile} className="inline-flex items-center gap-2">
 									<div className="h-8 w-8 rounded-full bg-gray-900 text-white grid place-items-center text-xs">
 										{(user.name || user.email).slice(0, 2).toUpperCase()}
 									</div>
+									{user.type && (
+										<span
+											className={
+												"text-[11px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full border " +
+												(user.type === 'customer'
+													? 'bg-gray-100 text-gray-700 border-gray-200'
+													: user.type === 'merchant'
+													? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+													: 'bg-indigo-50 text-indigo-700 border-indigo-200')
+											}
+										>
+											{user.type}
+										</span>
+									)}
 								</NavLink>
 								<button
 									className="rounded-md border px-3 py-1.5 hover:bg-gray-50"

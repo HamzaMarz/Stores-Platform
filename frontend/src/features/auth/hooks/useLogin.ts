@@ -13,7 +13,7 @@ export type LoginPayload = {
 
 type BackendLoginResponse = {
 	statusCode: number
-	data: { id: number; email: string; user: string }
+	data: { id: number; email: string; type?: 'customer' | 'merchant' | 'store'; user?: string }
 	Authorization?: string
 	message?: string
 }
@@ -21,6 +21,7 @@ type BackendLoginResponse = {
 export const useLogin = () => {
 	const setUser = useAuthStore((s) => s.setUser)
 	const setAccessToken = useAuthStore((s) => s.setAccessToken)
+	const setBootstrapped = useAuthStore((s) => s.setBootstrapped)
 	return useMutation({
 		mutationKey: ['auth', 'login'],
 		mutationFn: async (payload: LoginPayload) => {
@@ -32,7 +33,14 @@ export const useLogin = () => {
 				body = body.data
 			}
 			const token = body.Authorization || tokenFromHeader || ''
-			const user: AuthUser = { id: String(body.data?.id ?? body.id), email: body.data?.email ?? body.email, name: body.data?.user ?? body.user }
+			const raw = body.data ?? body
+			const type = (raw.type ?? raw.user) as AuthUser['type']
+			const user: AuthUser = {
+				id: String(raw.id),
+				email: raw.email,
+				name: raw.email,
+				type,
+			}
 			return { user, token }
 		},
 		onSuccess: ({ user, token }) => {
@@ -41,6 +49,7 @@ export const useLogin = () => {
 				tokenService.setAccessToken(token)
 				setAccessToken(token)
 			}
+			setBootstrapped(true)
 		},
 	})
 }

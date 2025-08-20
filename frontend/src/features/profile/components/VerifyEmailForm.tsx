@@ -19,7 +19,12 @@ const VerifyEmailForm: React.FC<Props> = ({ onStarted }) => {
           const res = await start.mutateAsync({ step: 'start', email })
           onStarted({ email, createdAt: res.created_at })
         } catch (e) {
-          setError((e as Error).message || 'Failed to send code')
+          const msg = (e as Error).message || 'Failed to send code'
+          if (msg === 'OPERATION_IN_PROGRESS') {
+            onStarted({ email })
+            return
+          }
+          setError(msg)
         }
       }}
       className="space-y-4"

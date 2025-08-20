@@ -13,7 +13,7 @@ module.exports = class {
         if(user.password == null) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
         if (!compareSync(password, user.password)) throw new Error(ERRORS.EMAIL_PASSWORD_INCORRECT);
         if (user.restricted) throw new Error(ERRORS.USER_RESTRICTED);
-        const data = {id: user.id, email:user.email , user: user.type}
+        const data = {id: user.id, email:user.email , type: user.type}
         const Authorization = await this.createSession(user.id, ip ,user.type);
         return {data, Authorization};
     }
@@ -23,7 +23,7 @@ module.exports = class {
         const userExists = await User().where({email:email.trim().toLowerCase()}).first();
         if (userExists) throw new Error(ERRORS.USER_ALREADY_EXISTS);
         const [user] =  await User().insert({email:email.trim().toLowerCase(),password: hashSync(password, 10), type: "customer"}).returning(['id', 'type']);
-        const data = {id: user.id, email, user: user.type}
+        const data = {id: user.id, email, type: user.type}
         const Authorization = await this.createSession(user.id, ip ,user.type);
         return {data, Authorization};
     }
@@ -32,12 +32,12 @@ module.exports = class {
         let user = await User().where({email:email.trim().toLowerCase()}).first();
         if (user) {
             if (user.restricted) throw new Error(ERRORS.USER_RESTRICTED);
-            const data = {id: user.id, email: user.email, user: user.type}
+            const data = {id: user.id, email: user.email, type: user.type}
             const Authorization = await this.createSession(user.id, ip ,user.type);
             return {data, Authorization};
         };
         [user] =  await User().insert({email:email.trim().toLowerCase(), profile_pic, first_name, last_name, type: "customer"}).returning(['id', 'type']);
-        const data = {id: user.id, email, user: user.type}
+        const data = {id: user.id, email, type: user.type}
         const Authorization = await this.createSession(user.id, ip ,user.type);
         return {data, Authorization};
     }

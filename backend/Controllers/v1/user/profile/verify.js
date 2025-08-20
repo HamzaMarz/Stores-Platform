@@ -1,7 +1,7 @@
 const { object, string, number } = require("yup");
 const Operation = require("../../../../Classes/Operation");
 const Payment = require("../../../../Classes/Payment");
-const {ERRORS, OPERATION_STATUS} = require("../../../utils/enums");
+const {ERRORS, OPERATION_STATUS, OPERATION_NAME} = require("../../../utils/enums");
 
 // step: 'start' | 'check-otp' | 'start-add-card' | 'save-card'
 const schema = object({
@@ -20,7 +20,17 @@ module.exports = async (req, res, next) => {
 
         let data = null;
         if (step === 'start') {
-            await Operation.startVerifyEmail(user_id, email || req.user.email);
+            try {
+                const created_at = await Operation.startVerifyEmail(user_id, email || req.user.email);
+                data = { created_at };
+            } catch (err) {
+                if (err && err.message === ERRORS.OPERATION_IN_PROGRESS) {
+                    const existing = await Operation.getOperationByName(user_id, OPERATION_NAME.VERIFY_EMAIL);
+                    data = { created_at: existing?.created_at };
+                } else {
+                    throw err;
+                }
+            }
         } else if (step === 'check-otp') {
             await Operation.checkVerifyEmailOTP(user_id, otp);
         } else if (step === 'start-add-card') {
