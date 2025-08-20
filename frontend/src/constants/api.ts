@@ -24,6 +24,25 @@ export const ApiEndpoints = {
 	PaymentStatus: "/api/v1/user/payment/status",
 	// Profile Upgrade
 	ProfileUpgrade: "/api/v1/user/profile/upgrade",
+	// Seller - Products
+	SellerProductAdd: "/api/v1/user/seller/product/add",
+	SellerProductEdit: "/api/v1/user/seller/product/edit",
+	SellerProductAll: "/api/v1/user/seller/product/all",
+	SellerProductAllUnlisted: "/api/v1/user/seller/product/all-unlisted",
+	SellerProductSearch: "/api/v1/user/seller/product/search",
+	SellerProductEnlist: "/api/v1/user/seller/product/enlist",
+	SellerProductUnlist: "/api/v1/user/seller/product/unlist",
+	// Seller - Orders
+	SellerOrderAll: "/api/v1/user/seller/order/all",
+	SellerOrderDetails: "/api/v1/user/seller/order/details",
+	SellerOrderUpdate: "/api/v1/user/seller/order/update-order",
+	// Support
+	SupportCreateTicket: "/api/v1/user/support/create-ticket",
+	SupportAllTickets: "/api/v1/user/support/all-tickets",
+	SupportTicketDetails: "/api/v1/user/support/ticket-details",
+	SupportSendMessage: "/api/v1/user/support/send-message",
+	SupportCloseTicket: "/api/v1/user/support/close-ticket",
+	SupportRateTicket: "/api/v1/user/support/rate-ticket",
 } as const
 
 export type ApiEndpoint = typeof ApiEndpoints[keyof typeof ApiEndpoints]
