@@ -20,17 +20,9 @@ module.exports = async (req, res, next) => {
 
         let data = null;
         if (step === 'start') {
-            try {
-                const created_at = await Operation.startVerifyEmail(user_id, email || req.user.email);
-                data = { created_at };
-            } catch (err) {
-                if (err && err.message === ERRORS.OPERATION_IN_PROGRESS) {
-                    const existing = await Operation.getOperationByName(user_id, OPERATION_NAME.VERIFY_EMAIL);
-                    data = { created_at: existing?.created_at };
-                } else {
-                    throw err;
-                }
-            }
+            const created_at = await Operation.startVerifyEmail(user_id, email || req.user.email);
+            data = { created_at };
+            
         } else if (step === 'check-otp') {
             await Operation.checkVerifyEmailOTP(user_id, otp);
         } else if (step === 'start-add-card') {
