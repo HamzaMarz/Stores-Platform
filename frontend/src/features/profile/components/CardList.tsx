@@ -26,12 +26,12 @@ const CardList: React.FC<Props> = ({ onDeleted }) => {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div className="text-sm text-gray-700">Your saved payment methods</div>
         <button className="rounded-md bg-gray-900 text-white px-3 py-1.5 hover:bg-gray-800" onClick={() => setShowAdd(true)}>Add card</button>
       </div>
       {showAdd && (
-        <div className="rounded-md border p-3">
+        <div className="p-3 rounded-md border">
           {!verified ? (
             <AddCardForm onCompleted={() => { setShowAdd(false); refetch() }} />
           ) : (
@@ -42,7 +42,7 @@ const CardList: React.FC<Props> = ({ onDeleted }) => {
       )}
       {methods.length === 0 && <div className="text-sm text-gray-600">No cards saved.</div>}
       {methods.map((m) => (
-        <div key={m.id} className="flex items-center justify-between rounded-md border p-3">
+        <div key={m.id} className="flex justify-between items-center p-3 rounded-md border">
           <div className="text-sm text-gray-700">{m.brand?.toUpperCase() || 'CARD'} •••• {m.last4} {m.exp_month && m.exp_year ? `(exp ${m.exp_month}/${m.exp_year})` : ''}</div>
           <button
             className="text-xs text-rose-600 hover:underline disabled:opacity-50"
@@ -73,13 +73,18 @@ const NormalAddCardInline: React.FC<NormalAddCardInlineProps> = ({ onClose, onEr
   React.useEffect(() => {
     let mounted = true
     ;(async () => {
-      const s = await loadStripe(STRIPE_PUBLISHABLE_KEY)
-      if (!mounted || !s) return
-      setStripeInstance(s)
-      const elements = s.elements()
-      const card = elements.create('card')
-      card.mount('#sp-card-element-inline')
-      cardRef.current = card
+      try {
+        const s = await loadStripe(STRIPE_PUBLISHABLE_KEY)
+        if (!mounted || !s) return
+        setStripeInstance(s)
+        const elements = s.elements()
+        const card = elements.create('card')
+        card.mount('#sp-card-element-inline')
+        cardRef.current = card
+      } catch (error) {
+        console.warn('Stripe initialization failed:', error)
+        // Continue without Stripe if it fails to load
+      }
     })()
     return () => {
       mounted = false
@@ -110,7 +115,7 @@ const NormalAddCardInline: React.FC<NormalAddCardInlineProps> = ({ onClose, onEr
       }}
       className="space-y-3"
     >
-      <div id="sp-card-element-inline" className="rounded-md border p-3" />
+      <div id="sp-card-element-inline" className="p-3 rounded-md border" />
       <div className="flex gap-2">
         <button type="submit" disabled={!stripeInstance || isSubmitting} className="inline-flex items-center gap-2 rounded-md bg-gray-900 text-white px-3 py-1.5 disabled:opacity-60">
           {isSubmitting && <Spinner size={16} />}

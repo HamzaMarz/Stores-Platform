@@ -31,18 +31,23 @@ const AddCardForm: React.FC<Props> = ({ onCompleted }) => {
   React.useEffect(() => {
     let mounted = true
     ;(async () => {
-      const s = await loadStripe(STRIPE_PUBLISHABLE_KEY)
-      if (!mounted || !s) return
-      setStripe(s)
-      const elements = s.elements()
-      const card = elements.create('card', {
-        style: {
-          base: { fontSize: '16px', color: '#1f2937', '::placeholder': { color: '#9ca3af' } },
-          invalid: { color: '#ef4444' },
-        },
-      })
-      card.mount('#sp-card-element')
-      cardElementRef.current = card
+      try {
+        const s = await loadStripe(STRIPE_PUBLISHABLE_KEY)
+        if (!mounted || !s) return
+        setStripe(s)
+        const elements = s.elements()
+        const card = elements.create('card', {
+          style: {
+            base: { fontSize: '16px', color: '#1f2937', '::placeholder': { color: '#9ca3af' } },
+            invalid: { color: '#ef4444' },
+          },
+        })
+        card.mount('#sp-card-element')
+        cardElementRef.current = card
+      } catch (error) {
+        console.warn('Stripe initialization failed:', error)
+        // Continue without Stripe if it fails to load
+      }
     })()
     return () => {
       mounted = false

@@ -9,6 +9,7 @@ type Props = { children: React.ReactNode }
 const GuestRoute: React.FC<Props> = ({ children }) => {
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
     const isBootstrapped = useAuthStore((s) => s.isBootstrapped)
+    const user = useAuthStore((s) => s.user)
 
     if (!isBootstrapped) {
         return (
@@ -19,8 +20,10 @@ const GuestRoute: React.FC<Props> = ({ children }) => {
         )
     }
 
-    if (isAuthenticated) {
-        return <Navigate to={AppRoutes.Home} replace />
+    if (isAuthenticated && user) {
+        // Route by user type regardless of verification status
+        if (user.type === 'merchant' || user.type === 'store') return <Navigate to={AppRoutes.SellerWelcome} replace />
+        return <Navigate to={AppRoutes.CustomerWelcome} replace />
     }
 
     return <>{children}</>

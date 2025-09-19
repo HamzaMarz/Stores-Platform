@@ -2,7 +2,9 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useUpdatePassword } from '../hooks/useUpdatePassword'
+import { useMutation } from '@tanstack/react-query'
+import { axiosClient } from '../../../lib/axios'
+import { ApiEndpoints } from '../../../constants/api'
 
 type Props = { email: string; otp: string; onSuccess: () => void }
 
@@ -11,12 +13,23 @@ type FormValues = z.infer<typeof schema>
 
 const UpdatePasswordForm: React.FC<Props> = ({ email, otp, onSuccess }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(schema) })
-    const mutation = useUpdatePassword()
+    
+    const mutation = useMutation({
+        mutationFn: async (password: string) => {
+            try {
+                const { data } = await axiosClient.post(ApiEndpoints.UpdatePassword, { email, otp, password })
+                return data
+            } catch (error) {
+                console.error('Error updating password:', error)
+                throw error
+            }
+        },
+    })
 
     return (
         <form
             onSubmit={handleSubmit(async ({ password }) => {
-                await mutation.mutateAsync({ email, otp, password })
+                await mutation.mutateAsync(password)
                 onSuccess()
             })}
             className="space-y-4"

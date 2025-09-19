@@ -1,6 +1,6 @@
 import React from 'react'
 
-export type ProfileSection = 'profile' | 'cards' | 'upgrade' | 'security' | 'support' | 'verify'
+export type ProfileSection = 'profile' | 'cards' | 'upgrade' | 'security' | 'support' | 'verify' | 'settings'
 
 type Props = {
   sections: { key: ProfileSection; label: string }[]

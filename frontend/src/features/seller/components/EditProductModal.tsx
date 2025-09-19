@@ -2,9 +2,8 @@ import React from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { ProductCategories } from '../../../constants/product'
-import type { SellerProduct } from '../types'
-import { useEditProduct } from '../hooks/useSellerProducts'
+import { Categories, CategoryLabels } from '../../../constants/categories'
+import { useEditProduct, type SellerProduct } from '../hooks/useSellerProducts'
 
 type Props = {
   open: boolean
@@ -20,7 +19,7 @@ const schema = z.object({
   price: z.coerce.number().min(0).optional(),
   discount: z.coerce.number().min(0).max(100).optional(),
   in_stock: z.boolean().optional(),
-  thumbnail_image: z.any().optional(),
+  thumbnail_image: z.unknown().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -181,9 +180,9 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
   )
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 grid place-items-center p-4">
-      <div className="w-full max-w-4xl rounded-xl bg-white shadow">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
+    <div className="grid fixed inset-0 z-50 place-items-center p-4 bg-black/40">
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow">
+        <div className="flex justify-between items-center px-4 py-3 border-b">
           <h3 className="font-semibold">Edit product #{product.id}</h3>
           <button onClick={onClose} className="rounded-md border px-3 py-1.5">Close</button>
         </div>
@@ -215,9 +214,9 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
             <div>
               <div>
                 <div className="text-sm font-medium text-gray-700">Current</div>
-                <div className="mt-2 flex items-start gap-2">
+                <div className="flex gap-2 items-start mt-2">
                   <div className={`relative w-[50px] h-[50px] border rounded overflow-hidden ${newImages.length > 0 ? 'ring-2 ring-rose-400' : ''}`} onClick={() => setViewerSrc(product.thumbnail_image)}>
-                    <img src={product.thumbnail_image} alt="thumb" className="w-full h-full object-cover" />
+                    <img src={product.thumbnail_image} alt="thumb" className="object-cover w-full h-full" />
                     <button type="button" title="Add to new" disabled={isImporting || newImages.length >= 10} onClick={(e) => { e.stopPropagation(); importOldImage(product.thumbnail_image) }} className="absolute -top-1 -left-1 bg-white rounded-full border p-0.5 shadow text-gray-700 disabled:opacity-50">
                       <PlusIcon />
                     </button>
@@ -225,7 +224,7 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
                   <div className="flex flex-wrap gap-2">
                     {currentGallery.map((src, i) => (
                       <div key={i} className={`relative w-[50px] h-[50px] border rounded overflow-hidden ${newImages.length > 0 ? 'ring-2 ring-rose-400' : ''}`} onClick={() => setViewerSrc(src)}>
-                        <img src={src} alt={`img-${i}`} className="w-full h-full object-cover" />
+                        <img src={src} alt={`img-${i}`} className="object-cover w-full h-full" />
                         <button type="button" title="Add to new" disabled={isImporting || newImages.length >= 10} onClick={(e) => { e.stopPropagation(); importOldImage(src) }} className="absolute -top-1 -left-1 bg-white rounded-full border p-0.5 shadow text-gray-700 disabled:opacity-50">
                           <PlusIcon />
                         </button>
@@ -245,17 +244,17 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
 
               <div className="mt-4">
                 <div className="text-sm font-medium text-gray-700">New gallery (replaces current)</div>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="flex gap-2 items-center mt-2">
                   {newImages.length < 10 && (
                     <input type="file" accept="image/*" multiple onChange={onAddNewImages} className="rounded-md border px-3 py-1.5" />
                   )}
                   <span className="text-xs text-gray-600">{newImages.length}/10</span>
                 </div>
                 {newPreviews.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {newPreviews.map((src, i) => (
                       <div key={i} className="relative w-[50px] h-[50px] border rounded overflow-hidden" onClick={() => setViewerSrc(src)}>
-                        <img src={src} alt={`new-${i}`} className="w-full h-full object-cover" />
+                        <img src={src} alt={`new-${i}`} className="object-cover w-full h-full" />
                         <button type="button" aria-label="Remove" onClick={(e) => { e.stopPropagation(); removeNewAt(i) }} className="absolute -top-1 -right-1 bg-white rounded-full border p-0.5 text-gray-700 shadow">
                           <XIcon />
                         </button>
@@ -273,25 +272,25 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <label className="text-sm font-medium text-gray-700">Name</label>
-                <input defaultValue={product.name} {...register('name')} className="mt-1 w-full rounded-md border px-3 py-2" />
+                <input defaultValue={product.name} {...register('name')} className="px-3 py-2 mt-1 w-full rounded-md border" />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Category</label>
-                <select defaultValue={product.category} {...register('category')} className="mt-1 w-full rounded-md border px-3 py-2">
-                  {ProductCategories.map((c) => (<option key={c} value={c}>{c}</option>))}
+                <select defaultValue={product.category} {...register('category')} className="px-3 py-2 mt-1 w-full rounded-md border">
+                  {Categories.map((c) => (<option key={c} value={c}>{CategoryLabels[c]}</option>))}
                 </select>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Price</label>
-                <input type="number" step="0.01" defaultValue={product.price} {...register('price')} className="mt-1 w-full rounded-md border px-3 py-2" />
+                <input type="number" step="0.01" defaultValue={product.price} {...register('price')} className="px-3 py-2 mt-1 w-full rounded-md border" />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Discount (%)</label>
-                <input type="number" step="1" defaultValue={product.discount} {...register('discount')} className="mt-1 w-full rounded-md border px-3 py-2" />
+                <input type="number" step="1" defaultValue={product.discount} {...register('discount')} className="px-3 py-2 mt-1 w-full rounded-md border" />
               </div>
               <div className="col-span-2">
                 <label className="text-sm font-medium text-gray-700">Description</label>
-                <textarea defaultValue={product.description} {...register('description')} className="mt-1 w-full rounded-md border px-3 py-2" />
+                <textarea defaultValue={product.description} {...register('description')} className="px-3 py-2 mt-1 w-full rounded-md border" />
               </div>
               <div className="col-span-2">
                 <label className="text-sm font-medium text-gray-700">In stock</label>
@@ -300,9 +299,9 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 px-4 py-3 border-t">
-            <button type="button" onClick={onClose} className="rounded-md border px-4 py-2">Discard</button>
-            <button type="submit" disabled={!hasChanges() || editProduct.isPending || isImporting} className="rounded-md bg-gray-900 text-white px-4 py-2 disabled:opacity-60">
+          <div className="flex gap-2 justify-end items-center px-4 py-3 border-t">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md border">Discard</button>
+            <button type="submit" disabled={!hasChanges() || editProduct.isPending || isImporting} className="px-4 py-2 text-white bg-gray-900 rounded-md disabled:opacity-60">
               {editProduct.isPending ? 'Saving…' : 'Save'}
             </button>
           </div>
@@ -313,7 +312,7 @@ const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) 
         <div className="fixed inset-0 z-[60] bg-black/80 grid place-items-center p-6" onClick={() => setViewerSrc(null)}>
           <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             <img src={viewerSrc} alt="preview" className="max-w-full max-h-[90vh] object-contain" />
-            <button onClick={() => setViewerSrc(null)} className="absolute -top-3 -right-3 bg-white rounded-full border p-1 shadow">
+            <button onClick={() => setViewerSrc(null)} className="absolute -top-3 -right-3 p-1 bg-white rounded-full border shadow">
               <XIcon />
             </button>
           </div>

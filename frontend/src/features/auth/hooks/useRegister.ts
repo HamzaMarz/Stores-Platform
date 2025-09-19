@@ -14,7 +14,7 @@ export type RegisterPayload = {
 
 type BackendRegisterResponse = {
 	statusCode: number
-	data: { id: number; email: string; user: string }
+	data: { id: number; email: string; user: string; type?: 'customer' | 'merchant' | 'store'; verified?: boolean }
 	Authorization?: string
 	message?: string
 }
@@ -22,6 +22,7 @@ type BackendRegisterResponse = {
 export const useRegister = () => {
 	const setUser = useAuthStore((s) => s.setUser)
 	const setAccessToken = useAuthStore((s) => s.setAccessToken)
+	const setBootstrapped = useAuthStore((s) => s.setBootstrapped)
 	return useMutation({
 		mutationKey: ['auth', 'register'],
 		mutationFn: async (payload: RegisterPayload) => {
@@ -34,7 +35,15 @@ export const useRegister = () => {
 				body = body.data
 			}
 			const token = body.Authorization || tokenFromHeader || ''
-			const user: AuthUser = { id: String(body.data?.id ?? body.id), email: body.data?.email ?? body.email, name: body.data?.user ?? body.user }
+			const raw = body.data ?? body
+			const type = (raw.type ?? 'customer') as AuthUser['type']
+			const user: AuthUser = { 
+				id: String(raw.id), 
+				email: raw.email, 
+				name: raw.user || raw.email,
+				type,
+				verified: raw.verified ?? false,
+			}
 			return { user, token }
 		},
 		onSuccess: ({ user, token }) => {
@@ -43,6 +52,7 @@ export const useRegister = () => {
 				tokenService.setAccessToken(token)
 				setAccessToken(token)
 			}
+			setBootstrapped(true)
 		},
 	})
 }

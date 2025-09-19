@@ -8,6 +8,7 @@ type ProfileInfo = {
   phone: string
   bank_name: string
   bank_account: string
+  has_password: boolean
 }
 
 const pickData = <T,>(payload: unknown): T => {
@@ -30,6 +31,7 @@ export const useGetProfileInfo = () => {
         phone: d.phone || '',
         bank_name: d.bank_name || '',
         bank_account: d.bank_account || '',
+        has_password: d.has_password || false,
       }
     },
     enabled: true,
@@ -39,7 +41,7 @@ export const useGetProfileInfo = () => {
 export const useSaveProfileInfo = () => {
   return useMutation({
     mutationFn: async (payload: ProfileInfo) => {
-      const { data } = await axiosClient.put(ApiEndpoints.Profile, payload)
+      const { data } = await axiosClient.put(ApiEndpoints.ProfileEdit, payload)
       return pickData<any>(data)
     },
   })

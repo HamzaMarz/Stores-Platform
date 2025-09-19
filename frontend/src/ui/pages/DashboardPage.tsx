@@ -13,9 +13,8 @@ const DashboardPage: React.FC = () => {
 				</div>
 			</div>
 			<div className="mt-6 border-b">
-				<nav className="flex gap-4 text-sm">
+				<nav className="flex space-x-8 border-b border-gray-200">
 					<NavLink to="products" className={({isActive}) => isActive ? 'border-b-2 border-gray-900 pb-2' : 'text-gray-600 pb-2 hover:text-gray-900'}>Products</NavLink>
-					<NavLink to="orders" className={({isActive}) => isActive ? 'border-b-2 border-gray-900 pb-2' : 'text-gray-600 pb-2 hover:text-gray-900'}>Orders</NavLink>
 				</nav>
 			</div>
 			<div className="mt-6">

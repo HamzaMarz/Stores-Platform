@@ -13,7 +13,7 @@ export type LoginPayload = {
 
 type BackendLoginResponse = {
 	statusCode: number
-	data: { id: number; email: string; type?: 'customer' | 'merchant' | 'store'; user?: string }
+	data: { id: number; email: string; type?: 'customer' | 'merchant' | 'store'; user?: string; verified?: boolean }
 	Authorization?: string
 	message?: string
 }
@@ -38,18 +38,35 @@ export const useLogin = () => {
 			const user: AuthUser = {
 				id: String(raw.id),
 				email: raw.email,
-				name: raw.email,
+				name: raw.user || raw.email,
 				type,
+				verified: raw.verified ?? false,
 			}
 			return { user, token }
 		},
-		onSuccess: ({ user, token }) => {
-			setUser(user)
+		onSuccess: async ({ user, token }) => {
+			// Persist token first
 			if (token) {
 				tokenService.setAccessToken(token)
 				setAccessToken(token)
 			}
-			setBootstrapped(true)
+			// Optimistically set minimal user, then hydrate from /me for verified/type
+			setUser(user)
+			try {
+				const res = await axiosClient.get(ApiEndpoints.Me)
+				const me: any = (res.data as any)?.data ?? res.data
+				if (me) {
+					setUser({
+						id: String(me.id ?? user.id),
+						email: me.email ?? user.email,
+						name: me.user ?? me.name ?? user.name,
+						type: (me.type ?? me.user_type ?? user.type) as AuthUser['type'],
+						verified: Boolean(me.verified ?? me.is_verified ?? user.verified),
+					})
+				}
+			} finally {
+				setBootstrapped(true)
+			}
 		},
 	})
 }

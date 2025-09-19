@@ -2,11 +2,10 @@ import React from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useAddProduct, useListSellerProducts, useListUnlistedSellerProducts, useSearchSellerProducts, useToggleListing } from '../hooks/useSellerProducts'
+import { useAddProduct, useListSellerProducts, useListUnlistedSellerProducts, useSearchSellerProducts, useToggleListing, type SellerProduct } from '../hooks/useSellerProducts'
 import { useToast } from '../../../hooks/useToast'
-import { ProductCategories } from '../../../constants/product'
+import { Categories, CategoryLabels } from '../../../constants/categories'
 import EditProductModal from '../components/EditProductModal'
-import type { SellerProduct } from '../types'
 
 const schema = z.object({
 	name: z.string().min(3),
@@ -26,7 +25,7 @@ const SellerProductsPage: React.FC = () => {
 	const unlistedQuery = useListUnlistedSellerProducts({ category: 'all', discount: false, offset: pagination.offset, limit: pagination.limit, order: { column: 'id', direction: 'desc' } })
 	const [searchTerm, setSearchTerm] = React.useState('')
 	// Filters
-	const [searchCategory, setSearchCategory] = React.useState<'all' | typeof ProductCategories[number]>('all')
+	const [searchCategory, setSearchCategory] = React.useState<'all' | typeof Categories[number]>('all')
 	const [onlyInStock, setOnlyInStock] = React.useState(false)
 	const [priceMin, setPriceMin] = React.useState('')
 	const [priceMax, setPriceMax] = React.useState('')
@@ -117,23 +116,23 @@ const SellerProductsPage: React.FC = () => {
 		})
 	}
 
-	const currentList = tab === 'listed' ? (listQuery.data?.items ?? []) : tab === 'unlisted' ? (unlistedQuery.data?.items ?? []) : (searchQuery.data?.items ?? [])
+	const currentList = tab === 'listed' ? (listQuery.data?.data ?? []) : tab === 'unlisted' ? (unlistedQuery.data?.data ?? []) : (searchQuery.data?.data ?? [])
 	const currentCount = tab === 'listed' ? listQuery.data?.count : tab === 'unlisted' ? unlistedQuery.data?.count : searchQuery.data?.count
 
-	const unlistedIdSet = React.useMemo(() => new Set((unlistedQuery.data?.items ?? []).map((i) => i.id)), [unlistedQuery.data?.items])
+	const unlistedIdSet = React.useMemo(() => new Set((unlistedQuery.data?.data ?? []).map((i) => i.id)), [unlistedQuery.data?.data])
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+			<div className="flex justify-between items-center">
 				<h2 className="text-lg font-semibold">Products</h2>
 				{!addMode && (
-					<button onClick={() => setAddMode(true)} className="rounded-md bg-gray-900 text-white px-4 py-2">Add product</button>
+					<button onClick={() => setAddMode(true)} className="px-4 py-2 text-white bg-gray-900 rounded-md">Add product</button>
 				)}
 			</div>
 
 			{addMode ? (
-				<div className="rounded-xl border bg-white p-6 shadow-sm">
-					<h3 className="font-medium mb-4">Add product</h3>
+				<div className="p-6 bg-white rounded-xl border shadow-sm">
+					<h3 className="mb-4 font-medium">Add product</h3>
 					<form
 						onFocusCapture={() => setAddMode(true)}
 						onSubmit={handleSubmit(async (values) => {
@@ -164,17 +163,17 @@ const SellerProductsPage: React.FC = () => {
 						})}
 						className="grid grid-cols-2 gap-3"
 					>
-						<input {...register('name')} placeholder="Name" className="rounded-md border px-3 py-2" />
-						<select {...register('category')} className="rounded-md border px-3 py-2">
+						<input {...register('name')} placeholder="Name" className="px-3 py-2 rounded-md border" />
+						<select {...register('category')} className="px-3 py-2 rounded-md border">
 							<option value="">Select category</option>
-							{ProductCategories.map((c) => (
-								<option key={c} value={c}>{c}</option>
+							{Categories.map((c) => (
+								<option key={c} value={c}>{CategoryLabels[c]}</option>
 							))}
 						</select>
-						<input {...register('price', { valueAsNumber: true })} type="number" step="0.01" placeholder="Price" className="rounded-md border px-3 py-2" />
+						<input {...register('price', { valueAsNumber: true })} type="number" step="0.01" placeholder="Price" className="px-3 py-2 rounded-md border" />
 
 						<div className="col-span-2">
-							<div className="flex items-center justify-between mb-2">
+							<div className="flex justify-between items-center mb-2">
 								<label className="text-sm font-medium text-gray-700">Pictures ({images.length}/10)</label>
 								{images.length < 10 && (
 									<input type="file" accept="image/*" multiple onChange={onAddImage} className="rounded-md border px-3 py-1.5" />
@@ -183,7 +182,7 @@ const SellerProductsPage: React.FC = () => {
 							<div className="flex flex-wrap gap-3">
 								{previews.map((src, i) => (
 									<div key={i} className="relative w-[200px] h-[200px] rounded-md border overflow-hidden">
-										<img src={src} alt={`preview-${i}`} className="w-full h-full object-cover" />
+										<img src={src} alt={`preview-${i}`} className="object-cover w-full h-full" />
 										<button type="button" onClick={() => removeAt(i)} className="absolute top-1 right-1 rounded bg-white/90 px-2 py-0.5 text-xs border">Remove</button>
 										<label className="absolute top-1 left-1 flex items-center gap-1 bg-white/90 px-2 py-0.5 rounded text-xs border">
 											<input type="radio" name="thumbnail" checked={thumbnailIdx === i} onChange={() => setThumbnailIdx(i)} />
@@ -194,26 +193,26 @@ const SellerProductsPage: React.FC = () => {
 							</div>
 						</div>
 
-						<textarea {...register('description')} placeholder="Description" className="rounded-md border px-3 py-2 col-span-2" />
-						<div className="col-span-2 flex items-center gap-2">
-							<button type="submit" disabled={addProduct.isPending} className="rounded-md bg-gray-900 text-white px-4 py-2 disabled:opacity-60">Add</button>
-							<button type="button" onClick={() => { reset(); setImages([]); setAddMode(false) }} className="rounded-md border px-4 py-2">Discard</button>
+						<textarea {...register('description')} placeholder="Description" className="col-span-2 px-3 py-2 rounded-md border" />
+						<div className="flex col-span-2 gap-2 items-center">
+							<button type="submit" disabled={addProduct.isPending} className="px-4 py-2 text-white bg-gray-900 rounded-md disabled:opacity-60">Add</button>
+							<button type="button" onClick={() => { reset(); setImages([]); setAddMode(false) }} className="px-4 py-2 rounded-md border">Discard</button>
 							{Object.values(errors)[0]?.message && <span className="text-xs text-rose-600">{Object.values(errors)[0]?.message as any}</span>}
 						</div>
 					</form>
 				</div>
 			) : (
 				<>
-					<div className="flex flex-wrap items-center gap-2">
+					<div className="flex flex-wrap gap-2 items-center">
 						<button onClick={() => setTab('listed')} className={`rounded-md px-3 py-1.5 border ${tab === 'listed' ? 'bg-gray-900 text-white' : ''}`}>Listed</button>
 						<button onClick={() => setTab('unlisted')} className={`rounded-md px-3 py-1.5 border ${tab === 'unlisted' ? 'bg-gray-900 text-white' : ''}`}>Unlisted</button>
-						<div className="ml-auto flex items-center gap-2">
+						<div className="flex gap-2 items-center ml-auto">
 							<input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search products (optional)" className="rounded-md border px-3 py-1.5" />
 							<select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value as any)} className="rounded-md border px-2 py-1.5">
 								<option value="all">All</option>
-								{ProductCategories.map((c) => (<option key={c} value={c}>{c}</option>))}
+								{Categories.map((c) => (<option key={c} value={c}>{CategoryLabels[c]}</option>))}
 							</select>
-							<label className="flex items-center gap-1 text-sm">
+							<label className="flex gap-1 items-center text-sm">
 								<input type="checkbox" checked={onlyInStock} onChange={(e) => setOnlyInStock(e.target.checked)} />
 								<span>In stock</span>
 							</label>
@@ -236,7 +235,7 @@ const SellerProductsPage: React.FC = () => {
 						</div>
 					</div>
 
-					<div className="rounded-xl border bg-white p-4 shadow-sm">
+					<div className="p-4 bg-white rounded-xl border shadow-sm">
 						<div className="overflow-x-auto">
 							<table className="min-w-full text-sm">
 								<thead>
@@ -253,20 +252,21 @@ const SellerProductsPage: React.FC = () => {
 									{currentList.map((p) => {
 										const isUnlisted = tab === 'unlisted' ? true : tab === 'listed' ? false : unlistedIdSet.has(p.id)
 										return (
-										<tr key={p.id} className="border-t hover:bg-gray-50 cursor-pointer" onClick={() => setEditing(p)}>
+										<tr key={p.id} className="border-t cursor-pointer hover:bg-gray-50" onClick={() => setEditing(p)}>
 											<td className="p-2">{p.id}</td>
-											<td className="p-2 flex items-center gap-3">
-												<img src={p.thumbnail_image} alt="thumb" className="h-10 w-10 rounded object-cover" />
+											<td className="flex gap-3 items-center p-2">
+												<img src={p.thumbnail_image} alt="thumb" className="object-cover w-10 h-10 rounded" />
 												<div>
 													<div className="font-medium">{p.name}</div>
 													<div className="text-xs text-gray-500">{p.category}</div>
 												</div>
 											</td>
-											<td className="p-2">${p.price.toFixed(2)}</td>
+											{/* صار تعديل هان: تنسيق السعر بأمان عند كون القيمة null/غير رقم */}
+											<td className="p-2">${typeof p.price === 'number' ? p.price.toFixed(2) : '—'}</td>
 											<td className="p-2">{p.in_stock ? 'In stock' : 'Out of stock'}</td>
 											<td className="p-2">{isUnlisted ? 'Unlisted' : 'Listed'}</td>
 											<td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
-												<div className="flex justify-end gap-2">
+												<div className="flex gap-2 justify-end">
 													{isUnlisted ? (
 														<button onClick={async () => { await enlist.mutateAsync(p.id); await listQuery.refetch(); await unlistedQuery.refetch(); if (tab === 'search') await searchQuery.refetch() }} className="rounded-md border px-3 py-1.5">Enlist</button>
 													) : (

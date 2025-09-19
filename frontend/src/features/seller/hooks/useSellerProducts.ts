@@ -1,90 +1,136 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { axiosClient } from '../../../lib/axios'
 import { ApiEndpoints } from '../../../constants/api'
-import type { SellerProduct } from '../types'
 
-type ListRequest = {
+export interface SellerProduct {
+	id: number
+	name: string
+	description: string
+	price: number
+	discount: number
+	rating: number
+	rating_count: number
+	sell_count: number
 	category: string
+	thumbnail_image: string
+	images: string[]
+	in_stock: boolean
+	owner_id: number
+	product_owner: {
+		store_name: string
+		merchant_alias: string
+	}
+}
+
+export interface SellerProductsResponse {
+	data: SellerProduct[]
+	count: number
+}
+
+export interface SellerProductsParams {
+	category?: string
 	discount?: boolean
 	offset: number
 	limit: number
-	order: { column: 'rating' | 'sell_count' | 'id' | 'price' | 'name'; direction: 'asc' | 'desc' }
+	order: {
+		column: 'rating' | 'sell_count' | 'id' | 'price' | 'name'
+		direction: 'asc' | 'desc'
+	}
 }
 
-export const useListSellerProducts = (params: ListRequest) => {
-	return useQuery({
-		queryKey: ['seller-products', params],
-		queryFn: async () => {
-			const { data } = await axiosClient.post(ApiEndpoints.SellerProductAll, params)
-			return data as { statusCode: number; data: SellerProduct[]; count: number; message: string }
-		},
-		select: (res) => ({ items: res.data, count: res.count }),
-	})
-}
-
-export const useListUnlistedSellerProducts = (params: ListRequest) => {
-	return useQuery({
-		queryKey: ['seller-unlisted-products', params],
-		queryFn: async () => {
-			const { data } = await axiosClient.post(ApiEndpoints.SellerProductAllUnlisted, params)
-			return data as { statusCode: number; data: SellerProduct[]; count: number; message: string }
-		},
-		select: (res) => ({ items: res.data, count: res.count }),
-	})
-}
-
-type SearchRequest = {
+export interface SellerSearchParams {
 	term?: string
-	category: string
+	category?: string
 	in_stock?: boolean
-	discount?: { min: number; max: number }
 	price?: { min: number; max: number }
+	discount?: { min: number; max: number }
 	offset: number
 	limit: number
-	order: { column: 'rating' | 'sell_count' | 'id' | 'price' | 'name'; direction: 'asc' | 'desc' }
+	order: {
+		column: 'rating' | 'sell_count' | 'id' | 'price' | 'name'
+		direction: 'asc' | 'desc'
+	}
 }
 
-export const useSearchSellerProducts = (params: SearchRequest, enabled: boolean) => {
+export const useSellerProducts = (params: SellerProductsParams) => {
 	return useQuery({
-		enabled,
-		queryKey: ['seller-products-search', params],
-		queryFn: async () => {
-			const body: any = {
-				category: params.category,
-				offset: Number.isFinite(params.offset) ? params.offset : 0,
-				limit: Number.isFinite(params.limit) ? params.limit : 10,
-				order: params.order,
-			}
-			const t = (params.term || '').trim()
-			if (t.length > 0) body.term = t
-			if (typeof params.in_stock === 'boolean') body.in_stock = params.in_stock
-			if (params.discount && Number.isFinite(params.discount.min) && Number.isFinite(params.discount.max)) {
-				body.discount = { min: params.discount.min, max: params.discount.max }
-			}
-			if (params.price && Number.isFinite(params.price.min) && Number.isFinite(params.price.max)) {
-				body.price = { min: params.price.min, max: params.price.max }
-			}
-			const { data } = await axiosClient.post(ApiEndpoints.SellerProductSearch, body)
-			return data as { statusCode: number; data: SellerProduct[]; count: number; message: string }
+		queryKey: ['seller-products', params],
+		queryFn: async (): Promise<SellerProductsResponse> => {
+			const response = await axiosClient.post(ApiEndpoints.SellerProducts, params)
+			return response.data
 		},
-		select: (res) => ({ items: res.data, count: res.count }),
-		refetchOnWindowFocus: false,
-		refetchOnReconnect: false,
+		staleTime: 5 * 60 * 1000, // 5 minutes
 	})
 }
 
-type AddProductPayload = {
-	name: string
-	description: string
-	thumbnail_image: File
-	images: File[]
-	category: string
-	price: number
+// List Seller Products Hook
+export const useListSellerProducts = (params: SellerProductsParams) => {
+	return useQuery({
+		queryKey: ['list-seller-products', params],
+		queryFn: async (): Promise<SellerProductsResponse> => {
+			const response = await axiosClient.post(ApiEndpoints.SellerProducts, params)
+			return response.data
+		},
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	})
 }
 
+// List Unlisted Seller Products Hook
+export const useListUnlistedSellerProducts = (params: SellerProductsParams) => {
+	return useQuery({
+		queryKey: ['list-unlisted-seller-products', params],
+		queryFn: async (): Promise<SellerProductsResponse> => {
+			const response = await axiosClient.post(ApiEndpoints.SellerProductAllUnlisted, params)
+			return response.data
+		},
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	})
+}
+
+// Search Seller Products Hook
+export const useSearchSellerProducts = (params: SellerSearchParams, enabled: boolean = true) => {
+	return useQuery({
+		queryKey: ['search-seller-products', params],
+		queryFn: async (): Promise<SellerProductsResponse> => {
+			const response = await axiosClient.post(ApiEndpoints.SellerProductSearch, params)
+			return response.data
+		},
+		enabled,
+		staleTime: 2 * 60 * 1000, // 2 minutes
+	})
+}
+
+export const useTopSellerProducts = () => {
+	return useQuery({
+		queryKey: ['top-seller-products'],
+		queryFn: async (): Promise<SellerProductsResponse> => {
+			const response = await axiosClient.post(ApiEndpoints.SellerProducts, {
+				category: 'all',
+				discount: false,
+				offset: 0,
+				limit: 5,
+				order: {
+					column: 'sell_count',
+					direction: 'desc'
+				}
+			})
+			return response.data
+		},
+		staleTime: 10 * 60 * 1000, // 10 minutes
+	})
+}
+
+// Add Product Hook
 export const useAddProduct = () => {
 	return useMutation({
-		mutationFn: async (payload: AddProductPayload) => {
+		mutationFn: async (payload: {
+			name: string
+			description: string
+			thumbnail_image: File
+			images: File[]
+			category: string
+			price: number
+		}) => {
 			const formData = new FormData()
 			formData.append('name', payload.name)
 			formData.append('description', payload.description)
@@ -92,27 +138,29 @@ export const useAddProduct = () => {
 			payload.images.forEach((img) => formData.append('images', img))
 			formData.append('category', payload.category)
 			formData.append('price', String(payload.price))
-			const { data } = await axiosClient.put(ApiEndpoints.SellerProductAdd, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-			return data as { statusCode: number; message: string }
+			
+			const response = await axiosClient.put(ApiEndpoints.SellerProductAdd, formData, { 
+				headers: { 'Content-Type': 'multipart/form-data' } 
+			})
+			return response.data
 		},
 	})
 }
 
-type EditProductPayload = {
-	id: number
-	name?: string
-	description?: string
-	thumbnail_image?: File
-	images?: File[]
-	category?: string
-	price?: number
-	discount?: number
-	in_stock?: boolean
-}
-
+// Edit Product Hook
 export const useEditProduct = () => {
 	return useMutation({
-		mutationFn: async (payload: EditProductPayload) => {
+		mutationFn: async (payload: {
+			id: number
+			name?: string
+			description?: string
+			thumbnail_image?: File
+			images?: File[]
+			category?: string
+			price?: number
+			discount?: number
+			in_stock?: boolean
+		}) => {
 			const formData = new FormData()
 			Object.entries(payload).forEach(([k, v]) => {
 				if (v === undefined || v === null) return
@@ -124,24 +172,28 @@ export const useEditProduct = () => {
 					formData.append(k, v as any)
 				}
 			})
-			const { data } = await axiosClient.put(ApiEndpoints.SellerProductEdit, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-			return data as { statusCode: number; message: string }
+			
+			const response = await axiosClient.put(ApiEndpoints.SellerProductEdit, formData, { 
+				headers: { 'Content-Type': 'multipart/form-data' } 
+			})
+			return response.data
 		},
 	})
 }
 
+// Toggle Listing Hook
 export const useToggleListing = () => {
 	return {
 		enlist: useMutation({
 			mutationFn: async (id: number) => {
-				const { data } = await axiosClient.put(`${ApiEndpoints.SellerProductEnlist}?id=${id}`)
-				return data as { statusCode: number; message: string }
+				const response = await axiosClient.put(ApiEndpoints.SellerProductEnlist, { id })
+				return response.data
 			},
 		}),
 		unlist: useMutation({
 			mutationFn: async (id: number) => {
-				const { data } = await axiosClient.put(`${ApiEndpoints.SellerProductUnlist}?id=${id}`)
-				return data as { statusCode: number; message: string }
+				const response = await axiosClient.put(ApiEndpoints.SellerProductUnlist, { id })
+				return response.data
 			},
 		}),
 	}

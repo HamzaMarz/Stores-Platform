@@ -11,6 +11,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 	const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 	const isBootstrapped = useAuthStore((s) => s.isBootstrapped)
 	const userType = useAuthStore((s) => s.user?.type)
+	const isVerified = useAuthStore((s) => s.user?.verified)
 
 	if (!isBootstrapped) {
 		return (
@@ -25,6 +26,20 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 		return <Navigate to={AppRoutes.Login} replace state={{ from: location }} />
 	}
 
+	// If user is not verified: only allow appropriate welcome page, Profile, Upgrade
+	if (!isVerified) {
+		const isSeller = userType === 'merchant' || userType === 'store'
+		const allowed = [
+			isSeller ? AppRoutes.SellerWelcome : AppRoutes.CustomerWelcome, 
+			AppRoutes.Profile, 
+			AppRoutes.Upgrade
+		]
+		const isAllowed = allowed.some((p) => location.pathname === p)
+		if (!isAllowed) {
+			return <Navigate to={isSeller ? AppRoutes.SellerWelcome : AppRoutes.CustomerWelcome} replace />
+		}
+	}
+
 	// Prevent non-customer users from accessing the upgrade route
 	if (location.pathname === AppRoutes.Upgrade && userType && userType !== 'customer') {
 		return <Navigate to={AppRoutes.Dashboard} replace />
@@ -32,7 +47,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 
 	// Protect seller-only areas: if route starts with /dashboard and user is a customer, redirect
 	if (location.pathname.startsWith(AppRoutes.Dashboard) && (!userType || userType === 'customer')) {
-		return <Navigate to={AppRoutes.Home} replace />
+		return <Navigate to={AppRoutes.CustomerWelcome} replace />
 	}
 
 	return <>{children}</>

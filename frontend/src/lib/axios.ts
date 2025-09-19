@@ -19,6 +19,12 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
 	(response) => response,
 	(error: AxiosError) => {
+		// Treat canceled requests as AbortError so hooks can ignore them cleanly
+		if ((error as any).code === 'ERR_CANCELED') {
+			const abortErr = new Error('canceled')
+			;(abortErr as any).name = 'AbortError'
+			return Promise.reject(abortErr)
+		}
 		// Normalize backend errors
 		const message = (error.response?.data as { message?: string } | undefined)?.message || error.message || 'Request failed'
 		return Promise.reject(new Error(message))

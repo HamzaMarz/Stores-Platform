@@ -9,9 +9,11 @@ import ProfileInfoForm from '../components/ProfileInfoForm'
 import { useNavigate } from 'react-router-dom'
 import { AppRoutes } from '../../../constants/app'
 import UpdatePasswordForm from '../components/UpdatePasswordForm'
+import { useGetProfileInfo } from '../hooks/useProfileInfo'
 import ProfileSidebar, { type ProfileSection } from '../components/ProfileSidebar'
 import InlineUpgradePanel from '../../merchant/components/InlineUpgradePanel'
 import SupportSection from '../../support/components/SupportSection'
+import SettingsSection from '../../settings/components/SettingsSection'
 
 // Elements removed
 
@@ -21,6 +23,7 @@ const ProfilePage: React.FC = () => {
     const verified = useAuthStore((s) => s.user?.verified)
     const userType = useAuthStore((s) => s.user?.type)
     const isCustomer = userType === 'customer' || !userType
+    const profileInfo = useGetProfileInfo()
 
     const visibleSections = React.useMemo(() => {
         const sections: { key: ProfileSection; label: string }[] = [{ key: 'profile', label: 'Profile' }, { key: 'security', label: 'Security' }, { key: 'support', label: 'Support' }]
@@ -29,9 +32,10 @@ const ProfilePage: React.FC = () => {
         } else {
             sections.splice(1, 0, { key: 'cards', label: 'Cards' })
             if (isCustomer) sections.splice(2, 0, { key: 'upgrade', label: 'Upgrade' })
+            if (userType === 'store' || userType === 'merchant') sections.splice(2, 0, { key: 'settings', label: 'Settings' })
         }
         return sections
-    }, [verified, isCustomer])
+    }, [verified, isCustomer, userType])
 
     const [active, setActive] = React.useState<ProfileSection>(visibleSections[0].key)
     React.useEffect(() => {
@@ -72,7 +76,9 @@ const ProfilePage: React.FC = () => {
 					)}
 					{active === 'security' && (
 						<div className="rounded-xl border bg-white p-6 shadow-sm">
-							<h2 className="font-semibold">Update password</h2>
+							<h2 className="font-semibold">
+								{profileInfo.data?.has_password ? 'Update password' : 'Create password'}
+							</h2>
 							<div className="mt-4">
 								<UpdatePasswordForm />
 							</div>
@@ -104,6 +110,14 @@ const ProfilePage: React.FC = () => {
 								{step === 'done' && (
 									<div className="text-sm text-emerald-700">Your account is verified and card saved.</div>
 								)}
+							</div>
+						</div>
+					)}
+					{active === 'settings' && (userType === 'store' || userType === 'merchant') && (
+						<div className="rounded-xl border bg-white p-6 shadow-sm">
+							<h2 className="font-semibold">Settings</h2>
+							<div className="mt-4">
+								<SettingsSection />
 							</div>
 						</div>
 					)}
