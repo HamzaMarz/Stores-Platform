@@ -1,4 +1,5 @@
 const Order = require("../../../../../Classes/Order");
+const DeliverySimulator = require("../../../../../Classes/DeliverySimulator");
 const { ERRORS, ORDER_STATUS } = require("../../../../utils/enums");
 const { object, number, string } = require("yup");
 
@@ -13,6 +14,10 @@ module.exports = async (req, res, next) => {
         if (!isValid) throw new Error(ERRORS.VALIDATION_ERROR);
         const { id, status } = req.body;
         await Order.updateOrderStatusForSeller(id, req.user.id, status);
+        if (status === ORDER_STATUS.SHIPPED) {
+            // Fire-and-forget delivery simulation
+            try { DeliverySimulator.simulate(id); } catch (_) {}
+        }
         res.status(200).send({
             statusCode: 200,
             message: 'success',

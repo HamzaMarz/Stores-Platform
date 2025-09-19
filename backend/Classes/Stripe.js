@@ -62,4 +62,15 @@ module.exports = class {
 		if (amountCents) params.amount = amountCents;
 		return stripe.refunds.create(params);
 	}
+
+	static async createCheckoutSession({customerId, lineItems, successUrl, cancelUrl, mode = 'payment', metadata = {}}) {
+		return stripe.checkout.sessions.create({
+			customer: customerId,
+			mode,
+			line_items: lineItems,
+			success_url: successUrl,
+			cancel_url: cancelUrl,
+			metadata,
+		});
+	}
 }

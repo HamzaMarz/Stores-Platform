@@ -4,6 +4,8 @@ import type { Product } from '../hooks/useProducts'
 import { useNavigate } from 'react-router-dom'
 import { AppRoutes } from '../../../constants/app'
 import QuickMessageModal from '../../chat/components/QuickMessageModal'
+import { axiosClient } from '../../../lib/axios'
+import { ApiEndpoints } from '../../../constants/api'
 
 interface ProductInfoProps {
 	product: Product
@@ -27,10 +29,15 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
 		setQuantity(newQuantity)
 	}
 
-	const handleAddToCart = () => {
-		// TODO: Add to cart functionality
-		console.log('Add to cart:', { productId: product.id, quantity })
-	}
+    const handleAddToCart = async () => {
+        try {
+            await axiosClient.put(ApiEndpoints.CartAdd, { product_id: product.id, quantity })
+            alert('Added to cart')
+        } catch (e) {
+            console.error(e)
+            alert('Failed to add to cart')
+        }
+    }
 
 	const handleShare = async () => {
 		try {

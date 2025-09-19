@@ -35,6 +35,7 @@ export const ApiEndpoints = {
 	PaymentStatus: "/api/v1/user/payment/status",
 	PaymentCreatePayment: "/api/v1/user/payment/create-payment",
 	PaymentGetStatus: "/api/v1/user/payment/get-payment-status",
+	PaymentSessionCreate: "/api/v1/user/payment/session-create",
 
 	// Products (General)
 	// صار تعديل هان: توحيد مع مسارات الباكند
@@ -64,6 +65,9 @@ export const ApiEndpoints = {
 	CartRemoveItem: "/api/v1/user/cart/remove-item",
 	CartUpdateQuantity: "/api/v1/user/cart/update-quantity",
 	CartCheckout: "/api/v1/user/cart/checkout",
+
+	// Orders
+	OrderConfirmDelivery: "/api/v1/user/order/confirm-delivery",
 
 	// Support
 	SupportCreateTicket: "/api/v1/user/support/create-ticket",

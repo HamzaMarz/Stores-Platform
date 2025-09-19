@@ -137,4 +137,18 @@ module.exports = class {
     static async markAsDelivered(id) {
         return Order().update({delivery: true, status: ORDER_STATUS.DELIVERED}).where({id});
     }
+
+    static async setCarrierDelivered(id) {
+        // Carrier marked delivered; keep delivery=false until user confirms
+        return Order().update({status: ORDER_STATUS.DELIVERED}).where({id});
+    }
+
+    static async confirmDeliveredByUser(id, user_id) {
+        const order = await this.getOrder(id);
+        if (!order) throw new Error(ERRORS.ORDER_DOES_NOT_EXIST);
+        if (order.user_id !== user_id) throw new Error(ERRORS.VALIDATION_ERROR);
+        if (order.status !== ORDER_STATUS.DELIVERED) throw new Error(ERRORS.VALIDATION_ERROR);
+        // Final confirmation flips the delivery flag
+        return Order().update({delivery: true}).where({id});
+    }
 } 
