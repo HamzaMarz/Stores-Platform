@@ -12,5 +12,16 @@ module.exports = {
             database: DB_NAME
         },
         debug:false,
+    },
+    production: {
+        client: 'pg',
+        connection: {
+            host: DB_HOST,
+            port: DB_PORT,
+            user: DB_USERNAME,
+            password: DB_PASSWORD,
+            database: DB_NAME
+        },
+        debug:false,
     }
 };
