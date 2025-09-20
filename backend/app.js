@@ -6,8 +6,6 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const router = require("./Controllers");
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./dump/swagger-docs.json');
 
 const app = express();
 
@@ -49,7 +47,11 @@ app.use(cookieParser());
 // Serve static assets from uploads for any non-API paths
 const uploadsDir = path.join(__dirname, "uploads");
 app.use(express.static(uploadsDir, { index: false }));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+if(process.env.NODE_ENV === 'development') {
+    const swaggerUi = require('swagger-ui-express');
+    const swaggerDocument = require('./dump/swagger-docs.json');
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+}
 app.use(router);
 
 module.exports = app;
