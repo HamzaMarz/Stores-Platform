@@ -1,7 +1,0 @@
-.idea
-.env
-node_modules
-package-lock.json
-dump
-docs
-uploads
