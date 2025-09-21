@@ -6,6 +6,7 @@ export type SupportTicket = {
   user_id: number
   status: string
   subject?: string
+  topic?: string
   created_at: string
 }
 
