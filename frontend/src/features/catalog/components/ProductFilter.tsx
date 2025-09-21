@@ -146,7 +146,7 @@ const ProductFilter: React.FC<Props> = ({
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {params.category && params.category !== 'all' && (
                                     <div className="flex gap-1 items-center px-3 py-1 text-xs text-blue-800 bg-blue-100 rounded-full shadow-sm cursor-pointer">
-                                        Category: {CategoryLabels[params.category]}{' '}
+                                        Category: {CategoryLabels[params.category as Category]}{' '}
                                         <FiX onClick={() => onChange(prev => ({ ...prev, category: 'all' }))} />
                                     </div>
                                 )}

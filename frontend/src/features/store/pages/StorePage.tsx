@@ -14,12 +14,19 @@ const StorePage: React.FC = () => {
     const storeId = parseInt(id || '0')
 
     // State for filters and sorting
-    const [filters, setFilters] = useState({
+    type FiltersState = {
+        category: string
+        in_stock?: boolean
+        price?: { min: number; max: number }
+        discount?: { min: number; max: number }
+        term?: string
+    }
+    const [filters, setFilters] = useState<FiltersState>({
         category: 'all',
         in_stock: undefined,
         price: undefined,
         discount: undefined,
-        term: undefined
+        term: undefined,
     })
 
     const [sortBy, setSortBy] = useState('id')
@@ -96,7 +103,7 @@ const StorePage: React.FC = () => {
     }
 
     // Handle filters change
-    const handleFiltersChange = (newFilters: typeof filters) => {
+    const handleFiltersChange = (newFilters: FiltersState) => {
         setFilters(newFilters)
     }
 

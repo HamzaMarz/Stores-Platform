@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useUpdateMerchantSettings } from '../hooks/useSettings'
 import { useToast } from '../../../hooks/useToast'
-import type { MerchantSettings, MerchantSettingsForm } from '../types'
+import type { MerchantSettings } from '../types'
 
 const schema = z.object({
   alias: z.string().min(3, 'Alias must be at least 3 characters').max(50, 'Alias must be less than 50 characters'),

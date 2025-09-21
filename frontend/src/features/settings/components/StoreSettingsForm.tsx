@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useUpdateStoreSettings } from '../hooks/useSettings'
 import { useToast } from '../../../hooks/useToast'
-import type { StoreSettings, StoreSettingsForm } from '../types'
+import type { StoreSettings } from '../types'
 
 const schema = z.object({
   store_name: z.string().min(2, 'Store name must be at least 2 characters'),

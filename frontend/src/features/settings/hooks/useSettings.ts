@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { axiosClient } from '../../../lib/axios'
 import { ApiEndpoints } from '../../../constants/api'
-import type { Settings, StoreSettingsForm, MerchantSettingsForm } from '../types'
+import type { Settings, StoreSettingsUpdateInput, MerchantSettingsUpdateInput } from '../types'
 
 export const useGetSettings = () => {
   return useQuery({
@@ -18,7 +18,7 @@ export const useUpdateStoreSettings = () => {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async (payload: StoreSettingsForm) => {
+    mutationFn: async (payload: StoreSettingsUpdateInput) => {
       const { data } = await axiosClient.put(ApiEndpoints.SettingsStore, payload)
       return data
     },
@@ -32,7 +32,7 @@ export const useUpdateMerchantSettings = () => {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async (payload: MerchantSettingsForm) => {
+    mutationFn: async (payload: MerchantSettingsUpdateInput) => {
       const { data } = await axiosClient.put(ApiEndpoints.SettingsMerchant, payload)
       return data
     },

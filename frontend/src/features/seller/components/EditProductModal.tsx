@@ -26,7 +26,7 @@ type FormValues = z.infer<typeof schema>
 
 const EditProductModal: React.FC<Props> = ({ open, product, onClose, onSaved }) => {
   const editProduct = useEditProduct()
-  const { register, handleSubmit, reset, watch } = useForm<FormValues>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, reset, watch } = useForm<FormValues>({ resolver: zodResolver(schema) as any })
   const values = watch()
 
   const parseImages = (imgs: SellerProduct['images']): string[] => {

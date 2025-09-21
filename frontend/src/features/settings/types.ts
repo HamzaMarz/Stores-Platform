@@ -24,7 +24,7 @@ export type MerchantSettings = {
 
 export type Settings = StoreSettings | MerchantSettings
 
-export type StoreSettingsForm = {
+export type StoreSettingsUpdateInput = {
     store_name: string
     logo?: string
     address1: string
@@ -33,7 +33,7 @@ export type StoreSettingsForm = {
     country: string
 }
 
-export type MerchantSettingsForm = {
+export type MerchantSettingsUpdateInput = {
     alias: string
     logo?: string
 }

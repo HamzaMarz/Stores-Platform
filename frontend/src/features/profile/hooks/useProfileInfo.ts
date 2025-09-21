@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { axiosClient } from '../../../lib/axios'
 import { ApiEndpoints } from '../../../constants/api'
 
-type ProfileInfo = {
+export type ProfileInfo = {
   first_name: string
   last_name: string
   phone: string

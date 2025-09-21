@@ -14,7 +14,6 @@ const RegisterPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { toast } = useOutletContext<OutletCtx>();
 	const { isLoading, startFlow } = useGoogleAuthFlow();
-	const user = useAuthStore((s) => s.user);
 
 	return (
 		<div className="flex min-h-screen bg-gray-50">

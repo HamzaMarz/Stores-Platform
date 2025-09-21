@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { useStoreSearch, type StoreOrder } from '../hooks/useStoreSearch'
 import { AppRoutes } from '../../../constants/app'
@@ -14,9 +14,9 @@ const orders: { label: string; value: StoreOrder }[] = [
 const StoreSearchPage: React.FC = () => {
     const [sp, setSp] = useSearchParams()
     const q = sp.get('q') || ''
-    const { stores, isLoading, isLoadingMore, hasMore, error, params, setParams, loadMore } = useStoreSearch({ term: q, offset: 0, limit: DEFAULT_LIMIT, order: { column: 'rating', direction: 'desc' } })
+    const { stores, isLoadingMore, hasMore, error, params, setParams, loadMore } = useStoreSearch({ term: q, offset: 0, limit: DEFAULT_LIMIT, order: { column: 'rating', direction: 'desc' } })
 
-    const applied = useMemo(() => (q.trim().length >= 2 ? 1 : 0), [q])
+    // const applied = useMemo(() => (q.trim().length >= 2 ? 1 : 0), [q])
 
     return (
         <div className="container px-4 py-10 mx-auto">

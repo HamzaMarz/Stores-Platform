@@ -22,7 +22,7 @@ const ProfileInfoForm: React.FC<Props> = ({ onSaved }) => {
   const infoQuery = useGetProfileInfo()
   const saveInfo = useSaveProfileInfo()
   const { toast } = useOutletContext<OutletCtx>()
-  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FormValues>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FormValues>({ resolver: zodResolver(schema) as any })
 
   React.useEffect(() => {
     if (!infoQuery.data) return
@@ -40,7 +40,7 @@ const ProfileInfoForm: React.FC<Props> = ({ onSaved }) => {
     <form
       onSubmit={handleSubmit(async (values) => {
         try {
-          await saveInfo.mutateAsync(values)
+          await saveInfo.mutateAsync(values as any)
           toast({ title: 'Profile updated', tone: 'success' })
           onSaved?.()
         } catch (e) {

@@ -1,13 +1,12 @@
 import React from 'react'
 import { useGetSettings } from '../hooks/useSettings'
-import { useAuthStore } from '../../auth/state/useAuthStore'
+// import { useAuthStore } from '../../auth/state/useAuthStore'
 import StoreSettingsForm from '../components/StoreSettingsForm'
 import MerchantSettingsForm from '../components/MerchantSettingsForm'
-import type { Settings } from '../types'
+// import type { Settings } from '../types'
 
 const SettingsPage: React.FC = () => {
   const { data: settings, isLoading, error } = useGetSettings()
-  const userType = useAuthStore((s) => s.user?.type)
 
   if (isLoading) {
     return (

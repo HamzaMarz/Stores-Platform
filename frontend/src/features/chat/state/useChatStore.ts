@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { ChatDetails, ChatMessage, ChatSummary } from '../types'
+import type { ChatMessage, ChatSummary } from '../types'
 
 type ChatState = {
   activeChatId: number | null
@@ -17,7 +17,7 @@ export const useChatStore = create<ChatState>((set) => ({
   activeChatId: null,
   setActiveChatId: (id) => set({ activeChatId: id }),
   chats: {},
-  setChats: (list) => set((s) => ({
+  setChats: (list) => set(() => ({
     chats: list.reduce<Record<number, ChatSummary>>((acc, c) => { acc[c.id] = c; return acc }, {})
   })),
   upsertChat: (chat) => set((s) => ({ chats: { ...s.chats, [chat.id]: chat } })),

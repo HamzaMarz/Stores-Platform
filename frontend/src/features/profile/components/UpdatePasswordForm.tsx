@@ -31,7 +31,7 @@ const UpdatePasswordForm: React.FC = () => {
   }, [profileInfo.data?.has_password])
   
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({ 
-    resolver: zodResolver(dynamicSchema) 
+    resolver: zodResolver(dynamicSchema) as any 
   })
 
   return (

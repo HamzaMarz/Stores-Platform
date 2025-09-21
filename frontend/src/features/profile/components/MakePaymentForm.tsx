@@ -38,7 +38,7 @@ const MakePaymentForm: React.FC<Props> = ({ orderId }) => {
     <form
       onSubmit={async (e) => {
         e.preventDefault()
-        const { client_secret } = await createPayment.mutateAsync({ order_id: orderId })
+        await createPayment.mutateAsync({ order_id: orderId })
         // For card on-file and automatic confirmation via backend/webhook, we just poll status
         const status = await getStatus.mutateAsync({ order_id: orderId })
         setResult(status.status)

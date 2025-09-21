@@ -123,7 +123,7 @@ const VisitorWelcomePage: React.FC = () => {
         { number: `${platformStats?.totalProducts || 0}+`, label: 'Products', icon: <MdTrendingUp /> },
         { number: `${platformStats?.totalStores || 0}+`, label: 'Stores', icon: <MdStorefront /> },
         { number: `${platformStats?.totalCustomers || 0}+`, label: 'Happy Customers', icon: <MdPeople /> },
-        { number: platformStats?.support || '24/7', label: 'Support', icon: <MdSecurity /> }
+        { number: '24/7', label: 'Support', icon: <MdSecurity /> }
     ];
 
     const features = [

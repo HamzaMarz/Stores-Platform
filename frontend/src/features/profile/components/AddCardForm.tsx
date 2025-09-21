@@ -7,16 +7,16 @@ import { useOutletContext } from 'react-router-dom'
 
 type Props = { onCompleted: () => void }
 
-const cardElementOptions = {
-  style: {
-    base: {
-      fontSize: '16px',
-      color: '#1f2937',
-      '::placeholder': { color: '#9ca3af' },
-    },
-    invalid: { color: '#ef4444' },
-  },
-}
+// const cardElementOptions = {
+//   style: {
+//     base: {
+//       fontSize: '16px',
+//       color: '#1f2937',
+//       '::placeholder': { color: '#9ca3af' },
+//     },
+//     invalid: { color: '#ef4444' },
+//   },
+// }
 
 type OutletCtx = { toast: (t: { title: string; description?: string; tone?: 'success' | 'error' | 'info' }) => void }
 

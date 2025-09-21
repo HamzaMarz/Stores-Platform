@@ -1,5 +1,5 @@
 // components/VisualSection.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // MUI Icons (can be replaced with SVGs if you prefer not to install MUI)

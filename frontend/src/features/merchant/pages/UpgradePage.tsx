@@ -44,7 +44,7 @@ const UpgradePage: React.FC = () => {
 
 			<div className="mt-8 grid md:grid-cols-2 gap-6">
 				<form
-					onSubmit={handleSubmit(async (values) => { await saveInfo.mutateAsync(values); show({ title: 'Profile info saved', tone: 'success' }) })}
+                    onSubmit={handleSubmit(async (values) => { await saveInfo.mutateAsync(values as any); show({ title: 'Profile info saved', tone: 'success' }) })}
 					className="rounded-xl border bg-white p-6 shadow-sm space-y-4"
 				>
 					<h2 className="font-semibold">Your information</h2>

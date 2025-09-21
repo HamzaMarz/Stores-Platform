@@ -1,9 +1,9 @@
 import React from 'react'
 import { useCartCheckout } from '../../cart/hooks/useCart'
 import { axiosClient } from '../../../lib/axios'
-import { ApiEndpoints, API_BASE_URL } from '../../../constants/api'
+import { ApiEndpoints } from '../../../constants/api'
 import { useListCards, useSaveCardNormal, useStartAddCardNormal } from '../../profile/hooks/usePaymentMethods'
-import { loadStripe } from '@stripe/stripe-js'
+import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import { STRIPE_PUBLISHABLE_KEY } from '../../../constants/thirdParty'
 
 type Props = { cartId: number }
@@ -18,9 +18,8 @@ const CheckoutForm: React.FC<Props> = ({ cartId }) => {
   const startAdd = useStartAddCardNormal()
   const saveCard = useSaveCardNormal()
   const [selectedCardId, setSelectedCardId] = React.useState<string | 'new' | ''>('')
-  const [stripeReady, setStripeReady] = React.useState(false)
-  const cardRef = React.useRef<stripe.elements.Element | null>(null)
-  const [stripeInstance, setStripeInstance] = React.useState<stripe.Stripe | null>(null)
+  const cardRef = React.useRef<StripeCardElement | null>(null)
+  const [stripeInstance, setStripeInstance] = React.useState<Stripe | null>(null)
 
   React.useEffect(() => {
     let mounted = true
@@ -33,7 +32,6 @@ const CheckoutForm: React.FC<Props> = ({ cartId }) => {
         const card = elements.create('card')
         card.mount('#checkout-card-element')
         cardRef.current = card
-        setStripeReady(true)
       } catch (_) {}
     })()
     return () => {
@@ -52,10 +50,10 @@ const CheckoutForm: React.FC<Props> = ({ cartId }) => {
         if (selectedCardId === 'new') {
           const { client_secret } = await startAdd.mutateAsync()
           if (!stripeInstance || !cardRef.current) throw new Error('STRIPE_NOT_READY')
-          const result = await stripeInstance.confirmCardSetup(client_secret, { payment_method: { card: cardRef.current as any } })
+          const result = await stripeInstance.confirmCardSetup(client_secret, { payment_method: { card: cardRef.current } })
           if (result.error) throw new Error(result.error.message || 'STRIPE_ERROR')
           const pmId = result.setupIntent?.payment_method as string
-          const saved = await saveCard.mutateAsync(pmId)
+          await saveCard.mutateAsync(pmId)
           // saved may return id or ok; refresh list and pick the newest
           await refetchCards()
           const methods = (cardsData?.methods || [])

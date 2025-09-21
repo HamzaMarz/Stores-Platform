@@ -17,8 +17,7 @@ const LoginPage: React.FC = () => {
 	const navigate = useNavigate()
 	const location = useLocation() as { state?: { from?: Location } }
 	const { toast } = useOutletContext<OutletCtx>()
-	const { isLoading, startFlow } = useGoogleAuthFlow()
-	const user = useAuthStore((s) => s.user)
+  const { isLoading, startFlow } = useGoogleAuthFlow()
   const [forgotOpen, setForgotOpen] = React.useState(false)
   const [emailForReset, setEmailForReset] = React.useState<string | null>(null)
   const [verifiedOtp, setVerifiedOtp] = React.useState<string | null>(null)

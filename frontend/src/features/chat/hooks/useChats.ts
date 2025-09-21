@@ -41,7 +41,7 @@ export function useChatDetails(id: number | null, messages_limit = 30, messages_
 export function useSendMessage() {
   const qc = useQueryClient()
   const user = useAuthStore((s) => s.user)
-  const { appendMessage, updateMessage, upsertChat } = useChatStore()
+  const { appendMessage, updateMessage /*, upsertChat*/ } = useChatStore()
   
   return useMutation({
     mutationFn: async (payload: { chat_id: number; message: string; attachment?: string | null }) => {
@@ -97,7 +97,7 @@ export function useSendMessage() {
       qc.invalidateQueries({ queryKey: CHAT_QK(msg.chat_id) })
       qc.invalidateQueries({ queryKey: CHATS_QK })
     },
-    onError: (error, variables, context) => {
+    onError: (_error, variables, context) => {
       if (context) {
         // Mark optimistic message as failed
         updateMessage(variables.chat_id, context.tempId, {

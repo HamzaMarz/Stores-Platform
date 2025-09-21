@@ -1,6 +1,6 @@
 import type { ChatMessage } from '../types'
 import MessageBubble from './MessageBubble'
-import { useAuthStore } from '../../auth/state/useAuthStore'
+// import { useAuthStore } from '../../auth/state/useAuthStore'
 
 type Props = { messages: ChatMessage[] }
 
@@ -45,7 +45,7 @@ function formatDateSeparator(date: string): string {
 }
 
 export default function MessageList({ messages }: Props) {
-  const user = useAuthStore((s) => s.user)
+  // const user = useAuthStore((s) => s.user)
   
   // Group messages and add separators
   const processedMessages = messages.map((message, index) => {

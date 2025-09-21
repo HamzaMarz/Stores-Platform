@@ -3,7 +3,7 @@ import { useDeleteCard, useListCards } from '../hooks/usePaymentMethods'
 import AddCardForm from './AddCardForm'
 import { useAuthStore } from '../../auth/state/useAuthStore'
 import { STRIPE_PUBLISHABLE_KEY } from '../../../constants/thirdParty'
-import { loadStripe } from '@stripe/stripe-js'
+import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import { useSaveCardNormal, useStartAddCardNormal } from '../hooks/usePaymentMethods'
 import Spinner from '../../../components/Spinner'
 import { useOutletContext } from 'react-router-dom'
@@ -67,8 +67,8 @@ type NormalAddCardInlineProps = {
 }
 
 const NormalAddCardInline: React.FC<NormalAddCardInlineProps> = ({ onClose, onError, startAdd, saveCard }) => {
-  const cardRef = React.useRef<stripe.elements.Element | null>(null)
-  const [stripeInstance, setStripeInstance] = React.useState<stripe.Stripe | null>(null)
+  const cardRef = React.useRef<StripeCardElement | null>(null)
+  const [stripeInstance, setStripeInstance] = React.useState<Stripe | null>(null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   React.useEffect(() => {
     let mounted = true
