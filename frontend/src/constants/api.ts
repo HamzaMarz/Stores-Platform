@@ -94,5 +94,11 @@ export const ApiEndpoints = {
 
 export type ApiEndpoint = typeof ApiEndpoints[keyof typeof ApiEndpoints]
 
-export const API_BASE_URL: string = import.meta.env.VITE_API_BASE || ''
+export const API_BASE_URL: string =
+	import.meta.env.VITE_API_BASE ||
+	(typeof window !== 'undefined'
+		? (window.location.hostname.endsWith('videonest.me')
+			? 'https://stores-platform.videonest.me'
+			: '')
+		: '')
 

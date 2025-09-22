@@ -32,6 +32,12 @@ export enum ApiEndpoints {
   AdminSupportUpdateStatus = "/api/v1/admin/support/update-status",
 }
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE as string
+export const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE as string) ||
+  (typeof window !== 'undefined'
+    ? (window.location.hostname.endsWith('videonest.me')
+        ? 'https://admin.stores-platform.videonest.me'
+        : '')
+    : '')
 
 
